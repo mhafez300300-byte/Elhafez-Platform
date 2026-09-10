@@ -1,65 +1,50 @@
 # Products / Drug Catalog Module v1 — Status
 
 Module Version: 1.0
-Current Stage: BUILD — BLOCKED BY AUDIT CORE CHANGE REQUEST
-Platform / Core Baseline SHA: 74eb7e9ada5bbe7bfc48e3f4b811d5bfe2bfd107
+Current Stage: BUILD — APPROVED SPECIFICATION COVERAGE IN PROGRESS
+Platform / Core Baseline SHA: 0f19d97c97213084f0f5033752a8d3fdfb2ec3f6
 Branch: module/products
 Approved Specification: specifications/products/APPROVED-SPECIFICATION.md
 Specification Commit: 0654c7510d0b1ab0a189c66ff752899289ad4029
-Current Products Source HEAD before this status-only commit: d469304527fbeffc3c2dd8581cfec016715fa3bb
 Verification PR: #10 (Draft; DO NOT MERGE)
-Open Core Change Request: #14 — Public Audit Reader Contract for Business Modules
 
 ## Current State
-- CORE CHANGE REQUEST #11 — Public Files Reader Contract for Business Modules is RESOLVED + MERGED + VERIFIED.
-- Products resumed against Core baseline `74eb7e9ada5bbe7bfc48e3f4b811d5bfe2bfd107`.
-- Product image collaboration has been moved to the public `FILE_READER` contract with regression coverage; no direct Files internals are permitted.
-- Products Web composition/aliases/frontend mounting and additional Products verification coverage have been added on `module/products`.
-- Products remains in BUILD and is not approved for Owner UI/UAT Review yet.
-- During Approved Specification review, Product audit/history access exposed a new Genuine Core Contract Gap: Audit has no generic public reader/token for Business Modules.
-- The main project review confirmed the Audit gap is a Genuine Core Contract Gap.
-- CORE CHANGE REQUEST #14 has been opened as a design-only request and is awaiting Owner Approval.
-
-## Audit Core Blocker
-Required capability: generic public Audit History reader under `@elhafez/audit/contracts`, reusable by all Business Modules.
-
-Proposed public collaboration surface includes:
-- `AUDIT_READER` token.
-- `AuditReader` interface.
-- entity-specific lookup using `entityType + entityId`.
-- server-side pagination.
-- company/branch scope awareness and isolation.
-- safe `AuditRecordView` return values only.
-- no Business Module dependency on `AuditService`, Audit repository/infrastructure, Prisma, or Audit internals.
-
-Security requirement: company/branch scope must come from trusted server-side authenticated/authorized context and must be enforced at the Audit boundary; arbitrary client scope claims are not authority.
-
-## Remaining Products Work After Core Blocker Resolution
-- Sync the verified Audit public-reader Core change into `module/products` without rebuilding Products from scratch.
-- Implement Product audit/history collaboration strictly through `@elhafez/audit/contracts` / `AUDIT_READER`.
-- Complete remaining Approved Specification UI and regression gaps.
-- Run Full Products Verification on the final real Products source HEAD.
-- Confirm Customers and Suppliers regressions remain PASS.
-- Confirm Central Egyptian Drug Catalog capability verification remains PASS.
-- Keep dataset population status separate from capability status; no claim of a trusted populated Egyptian dataset unless an approved provenance-bearing dataset is actually present and verified.
-- Move to `PRODUCTS v1 — READY FOR OWNER UI/UAT REVIEW` only after Full Automated Verification succeeds on the final Products HEAD.
-
-## Change Requests
 - CORE CHANGE REQUEST #11 — Public Files Reader Contract for Business Modules: RESOLVED + MERGED + VERIFIED.
-- CORE CHANGE REQUEST #14 — Public Audit Reader Contract for Business Modules: OPEN — AWAITING OWNER APPROVAL.
-- No Core workaround or direct Audit-internal dependency is permitted.
+- CORE CHANGE REQUEST #14 — Public Audit Reader Contract for Business Modules: RESOLVED + MERGED + VERIFIED.
+- Products was synchronized to verified Core baseline `0f19d97c97213084f0f5033752a8d3fdfb2ec3f6` without reset or rebuild.
+- Product image collaboration uses only `@elhafez/files/contracts` / `FILE_READER`; direct Files internals are forbidden.
+- Product audit-history collaboration uses only `@elhafez/audit/contracts` / `AUDIT_READER`; direct Audit internals are forbidden.
+- Products BUILD is active and the frozen Approved Specification is being reviewed requirement-by-requirement before any READY declaration.
+
+## Approved Specification Coverage Work
+The final coverage pass must close every requirement in `specifications/products/APPROVED-SPECIFICATION.md`, including backend/domain/API, responsive UI, security, permissions, audit, idempotency, imports/exports, bulk updates, Central Catalog capability, Files integration and public contracts.
+
+Known items being completed in this pass include:
+- bulk update retry safety and lifecycle validation.
+- import interruption recovery/resume and deterministic replay.
+- complete server-side filters and sorting.
+- explicit Save Draft / Save and Activate / Save and Add Another / Cancel UX.
+- complete multi-ingredient editing UI.
+- complete Product Image UI through Files APIs/contracts only.
+- Product Audit History UI through `AUDIT_READER` only.
+- Central Catalog provenance, ingestion history, quarantine/conflict administration and dataset traceability UX.
+- remaining specification requirements discovered by the line-by-line coverage checklist.
+
+## Central Egyptian Drug Catalog Verification Claim
+- Capability implementation/automated verification: IN PROGRESS until the final Products verification succeeds.
+- Real approved Egyptian dataset population: NOT VERIFIED.
+- No dataset may be called trusted/approved Egyptian medicine data without explicit source identity, provenance and licensing/usage approval.
+- Synthetic test fixtures are permitted only to verify software capability and must never be represented as real Egyptian catalog population.
 
 ## Verification Status
-- Core baseline `74eb7e9ada5bbe7bfc48e3f4b811d5bfe2bfd107`: previously verified after CORE CHANGE REQUEST #11.
-- Products automated verification on current Products work is not yet final.
-- Earlier verification reached successful migrations and lint, then exposed Products TypeScript defects; those known defects were subsequently addressed through source commits up to `d469304527fbeffc3c2dd8581cfec016715fa3bb`, but a final full verification run on the final Products HEAD has not yet been accepted.
-- Central Egyptian Drug Catalog capability uses synthetic test fixtures for verification where applicable.
-- Central Egyptian Drug Catalog population with a real approved trusted Egyptian dataset: NOT VERIFIED.
+- Core baseline `0f19d97c97213084f0f5033752a8d3fdfb2ec3f6`: VERIFIED on main.
+- Earlier Products CI proved frozen install, migrations, lint, typecheck, unit/architecture suites and broad integrations up to discovered Products test-contract mismatches; those mismatches have been corrected.
+- Final Products verification has NOT yet been accepted.
+- `PRODUCTS v1 — READY FOR OWNER UI/UAT REVIEW` must not be declared until Approved Specification Coverage is COMPLETE and Full Automated Verification is SUCCESS on the exact final Products HEAD.
 
 ## Next Required Action
-OWNER APPROVAL OR REJECTION OF CORE CHANGE REQUEST #14.
+Complete Approved Specification Coverage, create the Final Source Commit, and run Full Automated Verification on that exact final Products HEAD.
 
-No Core source code was changed for CORE CHANGE REQUEST #14.
-No Products source code was changed as part of opening CORE CHANGE REQUEST #14; this file is status documentation only.
 No merge to `main` performed.
 No Railway deployment performed.
+No other Business Module started.
