@@ -9,8 +9,8 @@ export const CUSTOMER_PERMISSION_DEFINITIONS = definePermissionDefinitions([
   { key: 'customers.view', description: 'View customers in an authorized scope' },
   { key: 'customers.create', description: 'Create customers in an authorized scope' },
   { key: 'customers.update', description: 'Update customer-owned data in an authorized scope' },
-  { key: 'customers.change_status', description: 'Change customer lifecycle status in an authorized scope' },
-  { key: 'customers.view_sensitive', description: 'View sensitive customer identification data' },
+  { key: 'customers.change-status', description: 'Change customer lifecycle status in an authorized scope' },
+  { key: 'customers.view-sensitive', description: 'View sensitive customer identification data' },
   { key: 'customers.export', description: 'Export customer data from an authorized scope' },
   { key: 'customers.import', description: 'Import customer data into an authorized scope' },
 ] as const);
