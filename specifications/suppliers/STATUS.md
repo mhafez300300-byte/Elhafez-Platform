@@ -1,10 +1,11 @@
 # Suppliers Module v1 — Build Status
 
-Status: BUILD IMPLEMENTATION COMPLETE — VERIFY PENDING
+Status: BUILD IMPLEMENTATION COMPLETE — VERIFY IN PROGRESS
 Branch: `module/suppliers`
 Platform Baseline: `027a00f61087738038211286ecf9f30ce1bf52a0`
 Core Baseline: `bd0c3e7faa09a297c55fe19bf395393a67a3cf15`
 Approved Specification: `specifications/suppliers/APPROVED-SPECIFICATION.md`
+Verification PR: `#9` (Draft, not merged)
 
 ## Progress
 
@@ -18,7 +19,7 @@ Approved Specification: `specifications/suppliers/APPROVED-SPECIFICATION.md`
 - BUILD — IMPORT/EXPORT: COMPLETE
 - BUILD — RESPONSIVE UI: COMPLETE
 - BUILD — TEST COVERAGE: COMPLETE
-- VERIFY: NOT VERIFIED
+- VERIFY: IN PROGRESS
 - OWNER UI/UAT REVIEW: NOT STARTED
 - APPROVED MODULE: NO
 - MERGED TO MAIN: NO
@@ -46,6 +47,24 @@ Approved Specification: `specifications/suppliers/APPROVED-SPECIFICATION.md`
 
 No Purchases, supplier invoices, purchase returns, Accounting balances, Payments, Cash/Treasury, GL, inventory receipts, supplier statements, or transactional purchase history are owned or persisted by Suppliers.
 
-## Verification status
+## Verification history
 
-Source implementation is complete on the Suppliers branch, but no PASS claim is allowed yet. The required GitHub Actions gates must execute against the exact branch HEAD. Any failure must be fixed on `module/suppliers`, followed by a new full verification run. `main` must remain unchanged until a later explicit owner merge instruction.
+### GitHub Actions Run #44 — FAILED at TYPECHECK
+
+Passed before failure:
+- Core source snapshot verification
+- dependency install / frozen-lockfile reinstall
+- Prisma generate
+- empty PostgreSQL migration
+- integration database migration/status
+- lint
+
+Failure:
+- `modules/suppliers/backend/api/suppliers.controller.ts`: parsed `page` / `pageSize` were inferred as optional before passing into the required `SupplierListQuery` contract.
+
+Root-cause correction:
+- Keep repository/application pagination contract strict.
+- Materialize validated pagination defaults explicitly at the API boundary (`page ?? 1`, `pageSize ?? 25`) rather than weakening the domain/application contract.
+- A fresh full verification run is required after this correction.
+
+No PASS claim is allowed until all required gates execute and pass against the exact Suppliers branch HEAD. `main` must remain unchanged until a later explicit owner merge instruction.

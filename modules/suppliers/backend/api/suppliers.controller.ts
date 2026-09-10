@@ -67,8 +67,34 @@ const importRowSchema = supplierDraftSchema.extend({
   contactIsPrimary: z.boolean().optional(),
 });
 const importSchema = z.object({ rows: z.array(importRowSchema).min(1).max(1000) });
+const listSchema = z.object({
+  search: z.string().max(180).optional(),
+  status: z.enum(['ACTIVE', 'SUSPENDED', 'ARCHIVED']).optional(),
+  supplierType: z.enum(['INDIVIDUAL', 'COMPANY']).optional(),
+  categoryId: uuid.optional(),
+  governorate: z.string().max(120).optional(),
+  city: z.string().max(120).optional(),
+  tagIds: z.array(uuid).max(20).optional(),
+  createdFrom: z.coerce.date().optional(),
+  createdTo: z.coerce.date().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(25),
+});
 
 type AuthRequest = { user: AccessPrincipal };
+type ListInput = {
+  search?: string;
+  status?: string;
+  supplierType?: string;
+  categoryId?: string;
+  governorate?: string;
+  city?: string;
+  tagIds?: string;
+  createdFrom?: string;
+  createdTo?: string;
+  page?: string;
+  pageSize?: string;
+};
 
 @Controller('suppliers')
 export class SuppliersController {
@@ -91,7 +117,12 @@ export class SuppliersController {
     @Query('pageSize') pageSize?: string,
   ) {
     const parsed = this.listQuery({ search, status, supplierType, categoryId, governorate, city, tagIds, createdFrom, createdTo, page, pageSize });
-    return this.service.list({ companyId: this.company(companyId), ...parsed });
+    return this.service.list({
+      companyId: this.company(companyId),
+      ...parsed,
+      page: parsed.page ?? 1,
+      pageSize: parsed.pageSize ?? 25,
+    });
   }
 
   @Get('categories')
@@ -265,76 +296,116 @@ export class SuppliersController {
 
   @Post(':id/addresses')
   @RequirePermission('suppliers.update')
-  addAddress(@Param('id') id: string, @Headers('x-company-id') companyId: string | undefined, @Headers('x-branch-id') branchId: string | undefined,
-    @Headers('x-request-id') requestId: string | undefined, @Body() body: unknown, @Req() req: AuthRequest) {
+  addAddress(
+    @Param('id') id: string,
+    @Headers('x-company-id') companyId: string | undefined,
+    @Headers('x-branch-id') branchId: string | undefined,
+    @Headers('x-request-id') requestId: string | undefined,
+    @Body() body: unknown,
+    @Req() req: AuthRequest,
+  ) {
     return this.service.addAddress(parseWithSchema(uuid, id), parseWithSchema(addressSchema, body), this.context(companyId, branchId, requestId, req.user));
   }
 
   @Patch(':id/addresses/:addressId')
   @RequirePermission('suppliers.update')
-  updateAddress(@Param('id') id: string, @Param('addressId') addressId: string, @Headers('x-company-id') companyId: string | undefined,
-    @Headers('x-branch-id') branchId: string | undefined, @Headers('x-request-id') requestId: string | undefined, @Body() body: unknown, @Req() req: AuthRequest) {
+  updateAddress(
+    @Param('id') id: string,
+    @Param('addressId') addressId: string,
+    @Headers('x-company-id') companyId: string | undefined,
+    @Headers('x-branch-id') branchId: string | undefined,
+    @Headers('x-request-id') requestId: string | undefined,
+    @Body() body: unknown,
+    @Req() req: AuthRequest,
+  ) {
     return this.service.updateAddress(parseWithSchema(uuid, id), parseWithSchema(uuid, addressId), parseWithSchema(addressUpdateSchema, body), this.context(companyId, branchId, requestId, req.user));
   }
 
   @Post(':id/addresses/:addressId/default')
   @RequirePermission('suppliers.update')
-  setDefaultAddress(@Param('id') id: string, @Param('addressId') addressId: string, @Headers('x-company-id') companyId: string | undefined,
-    @Headers('x-branch-id') branchId: string | undefined, @Headers('x-request-id') requestId: string | undefined, @Req() req: AuthRequest) {
+  setDefaultAddress(
+    @Param('id') id: string,
+    @Param('addressId') addressId: string,
+    @Headers('x-company-id') companyId: string | undefined,
+    @Headers('x-branch-id') branchId: string | undefined,
+    @Headers('x-request-id') requestId: string | undefined,
+    @Req() req: AuthRequest,
+  ) {
     return this.service.setDefaultAddress(parseWithSchema(uuid, id), parseWithSchema(uuid, addressId), this.context(companyId, branchId, requestId, req.user));
   }
 
   @Post(':id/addresses/:addressId/deactivate')
   @RequirePermission('suppliers.update')
-  deactivateAddress(@Param('id') id: string, @Param('addressId') addressId: string, @Headers('x-company-id') companyId: string | undefined,
-    @Headers('x-branch-id') branchId: string | undefined, @Headers('x-request-id') requestId: string | undefined, @Body() body: unknown, @Req() req: AuthRequest) {
+  deactivateAddress(
+    @Param('id') id: string,
+    @Param('addressId') addressId: string,
+    @Headers('x-company-id') companyId: string | undefined,
+    @Headers('x-branch-id') branchId: string | undefined,
+    @Headers('x-request-id') requestId: string | undefined,
+    @Body() body: unknown,
+    @Req() req: AuthRequest,
+  ) {
     const input = parseWithSchema(z.object({ version: z.number().int().min(1) }), body);
     return this.service.deactivateAddress(parseWithSchema(uuid, id), parseWithSchema(uuid, addressId), input.version, this.context(companyId, branchId, requestId, req.user));
   }
 
   @Post(':id/contacts')
   @RequirePermission('suppliers.update')
-  addContact(@Param('id') id: string, @Headers('x-company-id') companyId: string | undefined, @Headers('x-branch-id') branchId: string | undefined,
-    @Headers('x-request-id') requestId: string | undefined, @Body() body: unknown, @Req() req: AuthRequest) {
+  addContact(
+    @Param('id') id: string,
+    @Headers('x-company-id') companyId: string | undefined,
+    @Headers('x-branch-id') branchId: string | undefined,
+    @Headers('x-request-id') requestId: string | undefined,
+    @Body() body: unknown,
+    @Req() req: AuthRequest,
+  ) {
     return this.service.addContact(parseWithSchema(uuid, id), parseWithSchema(contactSchema, body), this.context(companyId, branchId, requestId, req.user));
   }
 
   @Patch(':id/contacts/:contactId')
   @RequirePermission('suppliers.update')
-  updateContact(@Param('id') id: string, @Param('contactId') contactId: string, @Headers('x-company-id') companyId: string | undefined,
-    @Headers('x-branch-id') branchId: string | undefined, @Headers('x-request-id') requestId: string | undefined, @Body() body: unknown, @Req() req: AuthRequest) {
+  updateContact(
+    @Param('id') id: string,
+    @Param('contactId') contactId: string,
+    @Headers('x-company-id') companyId: string | undefined,
+    @Headers('x-branch-id') branchId: string | undefined,
+    @Headers('x-request-id') requestId: string | undefined,
+    @Body() body: unknown,
+    @Req() req: AuthRequest,
+  ) {
     return this.service.updateContact(parseWithSchema(uuid, id), parseWithSchema(uuid, contactId), parseWithSchema(contactUpdateSchema, body), this.context(companyId, branchId, requestId, req.user));
   }
 
   @Post(':id/contacts/:contactId/primary')
   @RequirePermission('suppliers.update')
-  setPrimaryContact(@Param('id') id: string, @Param('contactId') contactId: string, @Headers('x-company-id') companyId: string | undefined,
-    @Headers('x-branch-id') branchId: string | undefined, @Headers('x-request-id') requestId: string | undefined, @Req() req: AuthRequest) {
+  setPrimaryContact(
+    @Param('id') id: string,
+    @Param('contactId') contactId: string,
+    @Headers('x-company-id') companyId: string | undefined,
+    @Headers('x-branch-id') branchId: string | undefined,
+    @Headers('x-request-id') requestId: string | undefined,
+    @Req() req: AuthRequest,
+  ) {
     return this.service.setPrimaryContact(parseWithSchema(uuid, id), parseWithSchema(uuid, contactId), this.context(companyId, branchId, requestId, req.user));
   }
 
   @Post(':id/contacts/:contactId/deactivate')
   @RequirePermission('suppliers.update')
-  deactivateContact(@Param('id') id: string, @Param('contactId') contactId: string, @Headers('x-company-id') companyId: string | undefined,
-    @Headers('x-branch-id') branchId: string | undefined, @Headers('x-request-id') requestId: string | undefined, @Body() body: unknown, @Req() req: AuthRequest) {
+  deactivateContact(
+    @Param('id') id: string,
+    @Param('contactId') contactId: string,
+    @Headers('x-company-id') companyId: string | undefined,
+    @Headers('x-branch-id') branchId: string | undefined,
+    @Headers('x-request-id') requestId: string | undefined,
+    @Body() body: unknown,
+    @Req() req: AuthRequest,
+  ) {
     const input = parseWithSchema(z.object({ version: z.number().int().min(1) }), body);
     return this.service.deactivateContact(parseWithSchema(uuid, id), parseWithSchema(uuid, contactId), input.version, this.context(companyId, branchId, requestId, req.user));
   }
 
-  private listQuery(input: Record<string, string | undefined>) {
-    const parsed = parseWithSchema(z.object({
-      search: z.string().max(180).optional(),
-      status: z.enum(['ACTIVE', 'SUSPENDED', 'ARCHIVED']).optional(),
-      supplierType: z.enum(['INDIVIDUAL', 'COMPANY']).optional(),
-      categoryId: uuid.optional(),
-      governorate: z.string().max(120).optional(),
-      city: z.string().max(120).optional(),
-      tagIds: z.array(uuid).max(20).optional(),
-      createdFrom: z.coerce.date().optional(),
-      createdTo: z.coerce.date().optional(),
-      page: z.coerce.number().int().min(1).default(1),
-      pageSize: z.coerce.number().int().min(1).max(100).default(25),
-    }), {
+  private listQuery(input: ListInput) {
+    const parsed = parseWithSchema(listSchema, {
       search: input.search || undefined,
       status: input.status || undefined,
       supplierType: input.supplierType || undefined,
@@ -351,8 +422,13 @@ export class SuppliersController {
     return parsed;
   }
 
-  private company(value: string | undefined): string { return parseWithSchema(uuid, value); }
-  private idempotency(value: string | undefined): string { return parseWithSchema(z.string().min(8).max(100), value); }
+  private company(value: string | undefined): string {
+    return parseWithSchema(uuid, value);
+  }
+
+  private idempotency(value: string | undefined): string {
+    return parseWithSchema(z.string().min(8).max(100), value);
+  }
 
   private context(companyId: string | undefined, branchId: string | undefined, requestId: string | undefined, user: AccessPrincipal): SupplierMutationContext {
     return {
