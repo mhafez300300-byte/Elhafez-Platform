@@ -133,6 +133,14 @@ export class PrismaProductsCentralQueryRepository implements ProductsCentralQuer
       } : null,
     };
   }
+
+  async getCompanyLink(companyId: string, referenceId: string) {
+    const product = await this.prisma.product.findFirst({
+      where: { companyId, centralReferenceId: referenceId },
+      select: { id: true, productCode: true, displayName: true, status: true },
+    });
+    return product ? { productId: product.id, productCode: product.productCode, displayName: product.displayName, status: product.status } : null;
+  }
 }
 
 function decimalOrNull(value: string): string | null {
