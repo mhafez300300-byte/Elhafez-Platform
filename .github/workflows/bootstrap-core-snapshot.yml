@@ -1,0 +1,46 @@
+name: Bootstrap Core Snapshot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-core-snapshot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct and verify exact Core snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .bootstrap/core.part00 .bootstrap/core.part01 .bootstrap/core.part02 .bootstrap/core.part03 > /tmp/core.tar.gz.b64
+          base64 --decode /tmp/core.tar.gz.b64 > /tmp/core.tar.gz
+          echo '1d40d675faa81f3b7cad389575002f9801c9657d59bc587499c964d5241d5b8a  /tmp/core.tar.gz' | sha256sum --check
+          tar -xzf /tmp/core.tar.gz -C .
+          test -f package.json
+          test -f prisma/schema/core.prisma
+          test -f scripts/check-architecture.mjs
+          test -f .github/workflows/core-runtime-verification.yml
+          rm -rf .bootstrap
+
+      - name: Commit complete Core snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'feat(core): persist Elhafez Platform Core baseline'
+          git push origin HEAD:main
