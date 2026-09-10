@@ -1,0 +1,106 @@
+model CustomerCategory {
+  id             String     @id @default(uuid()) @db.Uuid
+  companyId      String     @map("company_id") @db.Uuid
+  name           String     @db.VarChar(120)
+  normalizedName String     @map("normalized_name") @db.VarChar(120)
+  active         Boolean    @default(true)
+  createdAt      DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customers      Customer[]
+
+  @@unique([companyId, normalizedName])
+  @@index([companyId, active])
+  @@map("customer_categories")
+}
+
+model CustomerTag {
+  id             String                  @id @default(uuid()) @db.Uuid
+  companyId      String                  @map("company_id") @db.Uuid
+  name           String                  @db.VarChar(120)
+  normalizedName String                  @map("normalized_name") @db.VarChar(120)
+  active         Boolean                 @default(true)
+  createdAt      DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customers      CustomerTagAssignment[]
+
+  @@unique([companyId, normalizedName])
+  @@index([companyId, active])
+  @@map("customer_tags")
+}
+
+model Customer {
+  id                     String                  @id @default(uuid()) @db.Uuid
+  companyId              String                  @map("company_id") @db.Uuid
+  customerCode           String                  @map("customer_code") @db.VarChar(24)
+  createRequestKey       String?                 @map("create_request_key") @db.VarChar(100)
+  customerType           String                  @map("customer_type") @db.VarChar(20)
+  fullName               String                  @map("full_name") @db.VarChar(180)
+  normalizedName         String                  @map("normalized_name") @db.VarChar(180)
+  tradeName              String?                 @map("trade_name") @db.VarChar(180)
+  normalizedTradeName    String?                 @map("normalized_trade_name") @db.VarChar(180)
+  primaryPhone           String?                 @map("primary_phone") @db.VarChar(20)
+  secondaryPhone         String?                 @map("secondary_phone") @db.VarChar(20)
+  whatsappPhone          String?                 @map("whatsapp_phone") @db.VarChar(20)
+  email                  String?                 @db.VarChar(254)
+  nationalId             String?                 @map("national_id") @db.VarChar(40)
+  taxNumber              String?                 @map("tax_number") @db.VarChar(40)
+  commercialRegistration String?                 @map("commercial_registration") @db.VarChar(80)
+  birthDate              DateTime?               @map("birth_date") @db.Date
+  gender                 String?                 @db.VarChar(30)
+  categoryId             String?                 @map("category_id") @db.Uuid
+  source                 String?                 @db.VarChar(40)
+  notes                  String?                 @db.Text
+  status                 String                  @default("ACTIVE") @db.VarChar(20)
+  version                Int                     @default(1)
+  createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  category               CustomerCategory?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  addresses              CustomerAddress[]
+  tags                   CustomerTagAssignment[]
+
+  @@unique([companyId, customerCode])
+  @@unique([companyId, createRequestKey])
+  @@unique([companyId, nationalId])
+  @@unique([companyId, taxNumber])
+  @@index([companyId, status, updatedAt])
+  @@index([companyId, normalizedName])
+  @@index([companyId, primaryPhone])
+  @@index([companyId, whatsappPhone])
+  @@index([categoryId])
+  @@map("customers")
+}
+
+model CustomerAddress {
+  id          String   @id @default(uuid()) @db.Uuid
+  customerId  String   @map("customer_id") @db.Uuid
+  label       String?  @db.VarChar(80)
+  governorate String?  @db.VarChar(120)
+  city        String?  @db.VarChar(120)
+  street      String?  @db.VarChar(180)
+  details     String?  @db.VarChar(600)
+  landmark    String?  @db.VarChar(180)
+  phone       String?  @db.VarChar(20)
+  isDefault   Boolean  @default(false) @map("is_default")
+  active      Boolean  @default(true)
+  version     Int      @default(1)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, active])
+  @@index([governorate, city])
+  @@map("customer_addresses")
+}
+
+model CustomerTagAssignment {
+  id         String      @id @default(uuid()) @db.Uuid
+  customerId String      @map("customer_id") @db.Uuid
+  tagId      String      @map("tag_id") @db.Uuid
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tag        CustomerTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, tagId])
+  @@index([tagId])
+  @@map("customer_tag_assignments")
+}
