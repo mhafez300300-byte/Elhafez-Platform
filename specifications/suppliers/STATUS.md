@@ -1,11 +1,12 @@
 # Suppliers Module v1 — Build Status
 
-Status: BUILD + AUTOMATED VERIFY COMPLETE — OWNER UI/UAT REVIEW PENDING
+Status: SUPPLIERS v1 — APPROVED MODULE
 Branch: `module/suppliers`
 Platform Baseline: `027a00f61087738038211286ecf9f30ce1bf52a0`
 Core Baseline: `bd0c3e7faa09a297c55fe19bf395393a67a3cf15`
 Approved Specification: `specifications/suppliers/APPROVED-SPECIFICATION.md`
 Verification PR: `#9` (Draft, not merged)
+Final Automated-Verified Source Commit: `93171e040cd92291840658098737b4710bc34ccc`
 
 ## Progress
 
@@ -19,10 +20,23 @@ Verification PR: `#9` (Draft, not merged)
 - BUILD — IMPORT/EXPORT: COMPLETE
 - BUILD — RESPONSIVE UI: COMPLETE
 - BUILD — TEST COVERAGE: COMPLETE
-- AUTOMATED VERIFY: PASS — GitHub Actions Run #45 on source HEAD `444b05fee6f0cdc09bf5f769a37e24f0f3a4488d`
-- OWNER UI/UAT REVIEW: NOT STARTED
-- APPROVED MODULE: NO
+- AUTOMATED VERIFY: PASS — GitHub Actions Run #46 on commit `93171e040cd92291840658098737b4710bc34ccc`
+- OWNER UI/UAT: WAIVED BY OWNER
+- APPROVED MODULE: YES — SUPPLIERS v1
 - MERGED TO MAIN: NO
+
+## Owner decision
+
+Owner UI/UAT was not executed manually.
+
+OWNER DECISION: `OWNER UI/UAT = WAIVED BY OWNER`
+
+The project owner explicitly approved Suppliers v1 based on the successful automated verification. This waiver must not be interpreted or recorded as a manual UI/UAT PASS.
+
+Approval basis:
+- Final automated-verified source commit: `93171e040cd92291840658098737b4710bc34ccc`
+- GitHub Actions Run #46: SUCCESS
+- Owner acceptance of automated verification as sufficient for Suppliers v1 approval
 
 ## Implemented scope
 
@@ -84,6 +98,30 @@ Verified successfully on source HEAD `444b05fee6f0cdc09bf5f769a37e24f0f3a4488d`:
 - permission scope regression tests
 - production API + Web build
 
-This STATUS-only documentation commit is intentionally followed by the PR workflow again so the final branch HEAD is also checked. No source or Core behavior is changed by this documentation update.
+### GitHub Actions Run #46 — PASS
 
-`main` must remain unchanged until a later explicit owner merge instruction. Suppliers is not an APPROVED MODULE until Owner UI/UAT Review is completed and explicitly approved.
+Final automated verification completed successfully on commit `93171e040cd92291840658098737b4710bc34ccc`.
+
+Passed gates:
+- Core source snapshot verification
+- dependency install and frozen-lockfile reinstall
+- Prisma generate
+- empty PostgreSQL migration
+- integration database migration/status
+- lint
+- strict typecheck
+- unit tests
+- architecture tests
+- Core + Business integration tests
+- transaction rollback tests
+- authentication tests
+- permission scope regression tests
+- production API + Web build
+
+## Final approval state
+
+SUPPLIERS v1 — APPROVED MODULE
+
+Approval method: Automated Verification accepted by Owner; manual Owner UI/UAT waived by Owner.
+
+No merge to `main` has been performed. No Railway deployment has been performed. No new module has been started.
