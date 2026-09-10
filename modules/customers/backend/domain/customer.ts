@@ -78,11 +78,19 @@ export interface NormalizedAddressDraft {
   isDefault: boolean;
 }
 
+function hasControlCharacter(value: string): boolean {
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+    if (code <= 31 || code === 127) return true;
+  }
+  return false;
+}
+
 function cleanText(value: string | null | undefined, max: number): string | null {
   if (value == null) return null;
   const cleaned = value.trim().replace(/\s+/g, ' ');
   if (!cleaned) return null;
-  if (cleaned.length > max || /[\u0000-\u001f\u007f]/.test(cleaned)) {
+  if (cleaned.length > max || hasControlCharacter(cleaned)) {
     throw new CustomerDomainError('INVALID_NAME', 'Text value is invalid or too long');
   }
   return cleaned;
