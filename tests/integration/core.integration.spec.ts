@@ -1,1 +1,80 @@
-import{afterAll,beforeAll,beforeEach,describe,expect,it}from'vitest';import request from'supertest';import bcrypt from'bcryptjs';import type{INestApplication}from'@nestjs/common';import{PrismaService}from'@elhafez/database';import{createTestApp,resetDatabase}from'./test-app';describe('Core API integration',()=>{let app:INestApplication;let prisma:PrismaService;beforeAll(async()=>{app=await createTestApp();prisma=app.get(PrismaService);});beforeEach(()=>resetDatabase(prisma));afterAll(()=>app.close());it('executes core administration flow with audit evidence',async()=>{const admin=await prisma.coreUser.create({data:{email:'owner@example.com',displayName:'Owner',platformAdmin:true}});await prisma.coreAuthCredential.create({data:{userId:admin.id,login:admin.email,passwordHash:await bcrypt.hash('StrongPassword123!',12)}});for(const [key,description] of [['core.companies.manage','manage'],['core.branches.manage','manage'],['core.users.manage','manage'],['core.roles.manage','manage'],['core.audit.read','read']])await prisma.corePermission.create({data:{key,description}});const login=await request(app.getHttpServer()).post('/api/auth/login').send({login:admin.email,password:'StrongPassword123!'}).expect(201);const auth={Authorization:`Bearer ${login.body.accessToken}`};const company=await request(app.getHttpServer()).post('/api/companies').set(auth).send({code:'C-0001',name:'Core Company'}).expect(201);expect(company.body.code).toBe('C-0001');const branch=await request(app.getHttpServer()).post('/api/branches').set(auth).send({companyId:company.body.id,code:'B-01',name:'Main'}).expect(201);expect(branch.body.companyId).toBe(company.body.id);const user=await request(app.getHttpServer()).post('/api/users').set(auth).send({email:'employee@example.com',displayName:'Employee'}).expect(201);expect(user.body.email).toBe('employee@example.com');const role=await request(app.getHttpServer()).post('/api/roles').set(auth).send({key:'company.operator',name:'Operator',companyId:company.body.id}).expect(201);expect(role.body.key).toBe('company.operator');const audit=await request(app.getHttpServer()).get('/api/audit').set(auth).expect(200);expect(audit.body.length).toBeGreaterThanOrEqual(4);});});
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import request from 'supertest';
+import bcrypt from 'bcryptjs';
+import type { INestApplication } from '@nestjs/common';
+import { PrismaService } from '@elhafez/database';
+import { createTestApp, resetDatabase } from './test-app';
+
+describe('Core API integration', () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+
+  beforeAll(async () => {
+    app = await createTestApp();
+    prisma = app.get(PrismaService);
+  });
+
+  beforeEach(() => resetDatabase(prisma));
+  afterAll(() => app.close());
+
+  it('executes core administration flow with audit evidence', async () => {
+    const admin = await prisma.coreUser.create({
+      data: { email: 'owner@example.com', displayName: 'Owner', platformAdmin: true },
+    });
+    await prisma.coreAuthCredential.create({
+      data: {
+        userId: admin.id,
+        login: admin.email,
+        passwordHash: await bcrypt.hash('StrongPassword123!', 12),
+      },
+    });
+
+    const permissions: ReadonlyArray<readonly [string, string]> = [
+      ['core.companies.manage', 'manage'],
+      ['core.branches.manage', 'manage'],
+      ['core.users.manage', 'manage'],
+      ['core.roles.manage', 'manage'],
+      ['core.audit.read', 'read'],
+    ];
+    for (const [key, description] of permissions) {
+      await prisma.corePermission.create({ data: { key, description } });
+    }
+
+    const login = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ login: admin.email, password: 'StrongPassword123!' })
+      .expect(201);
+    const auth = { Authorization: `Bearer ${login.body.accessToken}` };
+
+    const company = await request(app.getHttpServer())
+      .post('/api/companies')
+      .set(auth)
+      .send({ code: 'C-0001', name: 'Core Company' })
+      .expect(201);
+    expect(company.body.code).toBe('C-0001');
+
+    const branch = await request(app.getHttpServer())
+      .post('/api/branches')
+      .set(auth)
+      .send({ companyId: company.body.id, code: 'B-01', name: 'Main' })
+      .expect(201);
+    expect(branch.body.companyId).toBe(company.body.id);
+
+    const user = await request(app.getHttpServer())
+      .post('/api/users')
+      .set(auth)
+      .send({ email: 'employee@example.com', displayName: 'Employee' })
+      .expect(201);
+    expect(user.body.email).toBe('employee@example.com');
+
+    const role = await request(app.getHttpServer())
+      .post('/api/roles')
+      .set(auth)
+      .send({ key: 'company.operator', name: 'Operator', companyId: company.body.id })
+      .expect(201);
+    expect(role.body.key).toBe('company.operator');
+
+    const audit = await request(app.getHttpServer()).get('/api/audit').set(auth).expect(200);
+    expect(audit.body.length).toBeGreaterThanOrEqual(4);
+  });
+});
