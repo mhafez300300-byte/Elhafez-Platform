@@ -1,0 +1,362 @@
+model ProductCategory {
+  id             String            @id @default(uuid()) @db.Uuid
+  companyId      String            @map("company_id") @db.Uuid
+  name           String            @db.VarChar(120)
+  normalizedName String            @map("normalized_name") @db.VarChar(120)
+  parentId       String?           @map("parent_id") @db.Uuid
+  active         Boolean           @default(true)
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  parent         ProductCategory?  @relation("ProductCategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children       ProductCategory[] @relation("ProductCategoryTree")
+  products       Product[]
+  @@unique([companyId, normalizedName])
+  @@index([companyId, active])
+  @@index([parentId])
+  @@map("product_categories")
+}
+
+model ProductTag {
+  id             String                 @id @default(uuid()) @db.Uuid
+  companyId      String                 @map("company_id") @db.Uuid
+  name           String                 @db.VarChar(120)
+  normalizedName String                 @map("normalized_name") @db.VarChar(120)
+  active         Boolean                @default(true)
+  createdAt      DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  products       ProductTagAssignment[]
+  @@unique([companyId, normalizedName])
+  @@index([companyId, active])
+  @@map("product_tags")
+}
+
+model ProductManufacturer {
+  id             String    @id @default(uuid()) @db.Uuid
+  companyId      String    @map("company_id") @db.Uuid
+  name           String    @db.VarChar(180)
+  normalizedName String    @map("normalized_name") @db.VarChar(180)
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  products       Product[]
+  @@unique([companyId, normalizedName])
+  @@index([companyId, active])
+  @@map("product_manufacturers")
+}
+
+model ProductIngredientMaster {
+  id             String                        @id @default(uuid()) @db.Uuid
+  companyId      String                        @map("company_id") @db.Uuid
+  name           String                        @db.VarChar(180)
+  normalizedName String                        @map("normalized_name") @db.VarChar(180)
+  active         Boolean                       @default(true)
+  createdAt      DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  products       ProductIngredientAssignment[]
+  @@unique([companyId, normalizedName])
+  @@index([companyId, active])
+  @@map("product_ingredient_masters")
+}
+
+model ProductDosageForm {
+  id             String    @id @default(uuid()) @db.Uuid
+  companyId      String    @map("company_id") @db.Uuid
+  name           String    @db.VarChar(120)
+  normalizedName String    @map("normalized_name") @db.VarChar(120)
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  products       Product[]
+  @@unique([companyId, normalizedName])
+  @@index([companyId, active])
+  @@map("product_dosage_forms")
+}
+
+model ProductRoute {
+  id             String    @id @default(uuid()) @db.Uuid
+  companyId      String    @map("company_id") @db.Uuid
+  name           String    @db.VarChar(120)
+  normalizedName String    @map("normalized_name") @db.VarChar(120)
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  products       Product[]
+  @@unique([companyId, normalizedName])
+  @@index([companyId, active])
+  @@map("product_routes")
+}
+
+model Product {
+  id                       String                        @id @default(uuid()) @db.Uuid
+  companyId                String                        @map("company_id") @db.Uuid
+  productCode              String                        @map("product_code") @db.VarChar(32)
+  createRequestKey         String?                       @map("create_request_key") @db.VarChar(120)
+  productType              String                        @map("product_type") @db.VarChar(20)
+  displayName              String                        @map("display_name") @db.VarChar(200)
+  normalizedName           String                        @map("normalized_name") @db.VarChar(200)
+  arabicName               String?                       @map("arabic_name") @db.VarChar(200)
+  normalizedArabicName     String?                       @map("normalized_arabic_name") @db.VarChar(200)
+  englishName              String?                       @map("english_name") @db.VarChar(200)
+  normalizedEnglishName    String?                       @map("normalized_english_name") @db.VarChar(200)
+  tradeName                String?                       @map("trade_name") @db.VarChar(200)
+  normalizedTradeName      String?                       @map("normalized_trade_name") @db.VarChar(200)
+  description              String?                       @db.Text
+  notes                    String?                       @db.Text
+  categoryId               String?                       @map("category_id") @db.Uuid
+  manufacturerId           String?                       @map("manufacturer_id") @db.Uuid
+  countryOfOrigin          String?                       @map("country_of_origin") @db.VarChar(120)
+  dosageFormId             String?                       @map("dosage_form_id") @db.Uuid
+  routeId                  String?                       @map("route_id") @db.Uuid
+  regulatoryId             String?                       @map("regulatory_id") @db.VarChar(120)
+  atcCode                  String?                       @map("atc_code") @db.VarChar(40)
+  prescriptionClass        String?                       @map("prescription_class") @db.VarChar(40)
+  controlled               Boolean                       @default(false)
+  coldChain                Boolean                       @default(false) @map("cold_chain")
+  storageNotes             String?                       @map("storage_notes") @db.Text
+  marketStatus             String                        @default("UNKNOWN") @map("market_status") @db.VarChar(30)
+  referencePrice           Decimal?                      @map("reference_price") @db.Decimal(18,4)
+  referencePriceSource     String?                       @map("reference_price_source") @db.VarChar(300)
+  referencePriceVerifiedAt DateTime?                     @map("reference_price_verified_at") @db.Timestamptz(6)
+  imageFileId              String?                       @map("image_file_id") @db.Uuid
+  centralReferenceId       String?                       @map("central_reference_id") @db.Uuid
+  centralSnapshot          Json?                         @map("central_snapshot")
+  status                   String                        @default("DRAFT") @db.VarChar(20)
+  version                  Int                           @default(1)
+  createdAt                DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  category                 ProductCategory?              @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  manufacturer             ProductManufacturer?          @relation(fields: [manufacturerId], references: [id], onDelete: SetNull)
+  dosageForm               ProductDosageForm?            @relation(fields: [dosageFormId], references: [id], onDelete: SetNull)
+  route                    ProductRoute?                 @relation(fields: [routeId], references: [id], onDelete: SetNull)
+  centralReference         CentralDrugReference?         @relation(fields: [centralReferenceId], references: [id], onDelete: SetNull)
+  ingredients              ProductIngredientAssignment[]
+  units                    ProductUnit[]
+  barcodes                 ProductBarcode[]
+  tags                     ProductTagAssignment[]
+  @@unique([companyId, productCode])
+  @@unique([companyId, createRequestKey])
+  @@unique([companyId, regulatoryId])
+  @@unique([companyId, centralReferenceId])
+  @@index([companyId, status, updatedAt])
+  @@index([companyId, normalizedName])
+  @@index([companyId, normalizedArabicName])
+  @@index([companyId, normalizedEnglishName])
+  @@index([companyId, normalizedTradeName])
+  @@index([manufacturerId])
+  @@index([categoryId])
+  @@index([dosageFormId])
+  @@index([routeId])
+  @@index([centralReferenceId])
+  @@map("products")
+}
+
+model ProductIngredientAssignment {
+  id            String                  @id @default(uuid()) @db.Uuid
+  productId     String                  @map("product_id") @db.Uuid
+  ingredientId  String                  @map("ingredient_id") @db.Uuid
+  strengthValue Decimal?                @map("strength_value") @db.Decimal(18,6)
+  strengthUnit  String?                 @map("strength_unit") @db.VarChar(40)
+  sortOrder     Int                     @default(0) @map("sort_order")
+  product       Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingredient    ProductIngredientMaster @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  @@unique([productId, ingredientId])
+  @@index([ingredientId])
+  @@map("product_ingredient_assignments")
+}
+
+model ProductUnit {
+  id               String           @id @default(uuid()) @db.Uuid
+  productId        String           @map("product_id") @db.Uuid
+  name             String           @db.VarChar(120)
+  shortLabel       String?          @map("short_label") @db.VarChar(40)
+  conversionFactor Decimal          @map("conversion_factor") @db.Decimal(18,6)
+  isBase           Boolean          @default(false) @map("is_base")
+  defaultSale      Boolean          @default(false) @map("default_sale")
+  defaultPurchase  Boolean          @default(false) @map("default_purchase")
+  active           Boolean          @default(true)
+  version          Int              @default(1)
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  product          Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  barcodes         ProductBarcode[]
+  @@index([productId, active])
+  @@map("product_units")
+}
+
+model ProductBarcode {
+  id         String      @id @default(uuid()) @db.Uuid
+  companyId  String      @map("company_id") @db.Uuid
+  productId  String      @map("product_id") @db.Uuid
+  unitId     String      @map("unit_id") @db.Uuid
+  value      String      @db.VarChar(64)
+  symbology  String?     @db.VarChar(30)
+  isPrimary  Boolean     @default(false) @map("is_primary")
+  active     Boolean     @default(true)
+  source     String?     @db.VarChar(180)
+  version    Int         @default(1)
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  unit       ProductUnit @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  @@unique([companyId, value])
+  @@index([productId, active])
+  @@index([unitId])
+  @@map("product_barcodes")
+}
+
+model ProductTagAssignment {
+  id        String     @id @default(uuid()) @db.Uuid
+  productId String     @map("product_id") @db.Uuid
+  tagId     String     @map("tag_id") @db.Uuid
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag       ProductTag @relation(fields: [tagId], references: [id], onDelete: Restrict)
+  @@unique([productId, tagId])
+  @@index([tagId])
+  @@map("product_tag_assignments")
+}
+
+model ProductImportSession {
+  id             String               @id @default(uuid()) @db.Uuid
+  kind           String               @db.VarChar(20)
+  scopeKey       String               @map("scope_key") @db.VarChar(80)
+  companyId      String?              @map("company_id") @db.Uuid
+  idempotencyKey String               @map("idempotency_key") @db.VarChar(120)
+  mode           String               @db.VarChar(60)
+  status         String               @default("OPEN") @db.VarChar(20)
+  sourceName     String?              @map("source_name") @db.VarChar(200)
+  sourceId       String?              @map("source_id") @db.Uuid
+  datasetKey     String?              @map("dataset_key") @db.VarChar(160)
+  mapping        Json?
+  totalRows      Int?                 @map("total_rows")
+  processedRows  Int                  @default(0) @map("processed_rows")
+  acceptedRows   Int                  @default(0) @map("accepted_rows")
+  updatedRows    Int                  @default(0) @map("updated_rows")
+  rejectedRows   Int                  @default(0) @map("rejected_rows")
+  quarantinedRows Int                 @default(0) @map("quarantined_rows")
+  createdBy      String               @map("created_by") @db.Uuid
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  chunks         ProductImportChunk[]
+  @@unique([kind, scopeKey, idempotencyKey])
+  @@index([companyId, createdAt])
+  @@index([kind, status, updatedAt])
+  @@map("product_import_sessions")
+}
+
+model ProductImportChunk {
+  id        String               @id @default(uuid()) @db.Uuid
+  sessionId String               @map("session_id") @db.Uuid
+  chunkKey  String               @map("chunk_key") @db.VarChar(120)
+  status    String               @default("PROCESSING") @db.VarChar(20)
+  result    Json?
+  createdAt DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  session   ProductImportSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  @@unique([sessionId, chunkKey])
+  @@index([sessionId, status])
+  @@map("product_import_chunks")
+}
+
+model CentralDrugSource {
+  id          String               @id @default(uuid()) @db.Uuid
+  sourceKey   String               @unique @map("source_key") @db.VarChar(120)
+  name        String               @db.VarChar(200)
+  provenance  String               @db.Text
+  licenseNote String?              @map("license_note") @db.Text
+  sourceUrl   String?              @map("source_url") @db.VarChar(500)
+  active      Boolean              @default(true)
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  datasets    CentralDrugDataset[]
+  references  CentralDrugReference[]
+  @@map("central_drug_sources")
+}
+
+model CentralDrugDataset {
+  id          String                 @id @default(uuid()) @db.Uuid
+  sourceId    String                 @map("source_id") @db.Uuid
+  datasetKey  String                 @map("dataset_key") @db.VarChar(160)
+  publishedAt DateTime?              @map("published_at") @db.Timestamptz(6)
+  ingestedAt  DateTime               @default(now()) @map("ingested_at") @db.Timestamptz(6)
+  createdBy   String                 @map("created_by") @db.Uuid
+  status      String                 @default("ACTIVE") @db.VarChar(20)
+  source      CentralDrugSource      @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  references  CentralDrugReference[]
+  @@unique([sourceId, datasetKey])
+  @@index([sourceId, ingestedAt])
+  @@map("central_drug_datasets")
+}
+
+model CentralDrugReference {
+  id                  String                  @id @default(uuid()) @db.Uuid
+  sourceId            String                  @map("source_id") @db.Uuid
+  datasetId           String?                 @map("dataset_id") @db.Uuid
+  sourceRecordKey     String                  @map("source_record_key") @db.VarChar(180)
+  canonicalName       String                  @map("canonical_name") @db.VarChar(220)
+  normalizedName      String                  @map("normalized_name") @db.VarChar(220)
+  arabicName          String?                 @map("arabic_name") @db.VarChar(220)
+  normalizedArabicName String?                @map("normalized_arabic_name") @db.VarChar(220)
+  englishName         String?                 @map("english_name") @db.VarChar(220)
+  normalizedEnglishName String?               @map("normalized_english_name") @db.VarChar(220)
+  tradeName           String?                 @map("trade_name") @db.VarChar(220)
+  normalizedTradeName String?                 @map("normalized_trade_name") @db.VarChar(220)
+  manufacturerName    String?                 @map("manufacturer_name") @db.VarChar(200)
+  dosageForm          String?                 @map("dosage_form") @db.VarChar(120)
+  route               String?                 @db.VarChar(120)
+  regulatoryId        String?                 @unique @map("regulatory_id") @db.VarChar(120)
+  atcCode             String?                 @map("atc_code") @db.VarChar(40)
+  prescriptionClass   String?                 @map("prescription_class") @db.VarChar(40)
+  controlled          Boolean                 @default(false)
+  packageDescription  String?                 @map("package_description") @db.VarChar(300)
+  baseUnitLabel       String?                 @map("base_unit_label") @db.VarChar(80)
+  packageUnitLabel    String?                 @map("package_unit_label") @db.VarChar(80)
+  conversionFactor    Decimal?                @map("conversion_factor") @db.Decimal(18,6)
+  referencePrice      Decimal?                @map("reference_price") @db.Decimal(18,4)
+  marketStatus        String                  @default("UNKNOWN") @map("market_status") @db.VarChar(30)
+  sourceEffectiveDate DateTime?               @map("source_effective_date") @db.Timestamptz(6)
+  lastVerifiedAt      DateTime?               @map("last_verified_at") @db.Timestamptz(6)
+  status              String                  @default("ACTIVE") @db.VarChar(20)
+  version             Int                     @default(1)
+  quarantineReason    String?                 @map("quarantine_reason") @db.Text
+  sourcePayload       Json?                   @map("source_payload")
+  createdAt           DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  source              CentralDrugSource       @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  dataset             CentralDrugDataset?     @relation(fields: [datasetId], references: [id], onDelete: SetNull)
+  ingredients         CentralDrugIngredient[]
+  barcodes            CentralDrugBarcode[]
+  companyProducts     Product[]
+  @@unique([sourceId, sourceRecordKey])
+  @@index([status, normalizedName])
+  @@index([normalizedArabicName])
+  @@index([normalizedEnglishName])
+  @@index([normalizedTradeName])
+  @@index([manufacturerName])
+  @@index([atcCode])
+  @@map("central_drug_references")
+}
+
+model CentralDrugIngredient {
+  id            String               @id @default(uuid()) @db.Uuid
+  centralDrugId String               @map("central_drug_id") @db.Uuid
+  name          String               @db.VarChar(180)
+  normalizedName String              @map("normalized_name") @db.VarChar(180)
+  strengthValue Decimal?             @map("strength_value") @db.Decimal(18,6)
+  strengthUnit  String?              @map("strength_unit") @db.VarChar(40)
+  sortOrder     Int                  @default(0) @map("sort_order")
+  centralDrug   CentralDrugReference @relation(fields: [centralDrugId], references: [id], onDelete: Cascade)
+  @@index([centralDrugId, sortOrder])
+  @@index([normalizedName])
+  @@map("central_drug_ingredients")
+}
+
+model CentralDrugBarcode {
+  id            String               @id @default(uuid()) @db.Uuid
+  centralDrugId String               @map("central_drug_id") @db.Uuid
+  value         String               @unique @db.VarChar(64)
+  symbology     String?              @db.VarChar(30)
+  centralDrug   CentralDrugReference @relation(fields: [centralDrugId], references: [id], onDelete: Cascade)
+  @@index([centralDrugId])
+  @@map("central_drug_barcodes")
+}
