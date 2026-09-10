@@ -278,7 +278,7 @@ export class CustomersController {
   }
 
   @Get(':id/sensitive')
-  @RequirePermission('customers.view_sensitive')
+  @RequirePermission('customers.view-sensitive')
   sensitive(@Param('id') id: string, @Headers('x-company-id') companyId: string | undefined) {
     return this.service.getSensitive(this.company(companyId), parseWithSchema(uuid, id));
   }
@@ -307,7 +307,7 @@ export class CustomersController {
   }
 
   @Patch(':id/status')
-  @RequirePermission('customers.change_status')
+  @RequirePermission('customers.change-status')
   status(
     @Param('id') id: string,
     @Headers('x-company-id') companyId: string | undefined,
