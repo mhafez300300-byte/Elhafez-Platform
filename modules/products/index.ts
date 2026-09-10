@@ -14,7 +14,7 @@ import { ProductsService } from './backend/application/products.service';
 import { ProductsV1Service } from './backend/application/products-v1.service';
 import { ProductsCentralQueryService } from './backend/application/products-central-query.service';
 import { ProductsImportPreflightService } from './backend/application/products-import-preflight.service';
-import { PrismaProductsV1Repository } from './backend/infrastructure/prisma-products-v1.repository';
+import { PrismaProductsFinalRepository } from './backend/infrastructure/prisma-products-final.repository';
 import { PrismaProductsCentralQueryRepository } from './backend/infrastructure/prisma-products-central-query.repository';
 import { PrismaProductsImportPreflightRepository } from './backend/infrastructure/prisma-products-import-preflight.repository';
 
@@ -33,14 +33,14 @@ export class ProductsModule {
       ],
       providers: [
         ProductsPermissionRegistrar,
-        PrismaProductsV1Repository,
+        PrismaProductsFinalRepository,
         PrismaProductsCentralQueryRepository,
         PrismaProductsImportPreflightRepository,
         ProductsV1Service,
         ProductsCentralQueryService,
         ProductsImportPreflightService,
-        { provide: PRODUCTS_REPOSITORY, useExisting: PrismaProductsV1Repository },
-        { provide: PRODUCTS_HARDENING_REPOSITORY, useExisting: PrismaProductsV1Repository },
+        { provide: PRODUCTS_REPOSITORY, useExisting: PrismaProductsFinalRepository },
+        { provide: PRODUCTS_HARDENING_REPOSITORY, useExisting: PrismaProductsFinalRepository },
         { provide: PRODUCTS_CENTRAL_QUERY_REPOSITORY, useExisting: PrismaProductsCentralQueryRepository },
         { provide: PRODUCTS_IMPORT_PREFLIGHT_REPOSITORY, useExisting: PrismaProductsImportPreflightRepository },
         { provide: ProductsService, useExisting: ProductsV1Service },
