@@ -1,6 +1,6 @@
 # Suppliers Module v1 — Build Status
 
-Status: BUILD IMPLEMENTATION COMPLETE — VERIFY IN PROGRESS
+Status: BUILD + AUTOMATED VERIFY COMPLETE — OWNER UI/UAT REVIEW PENDING
 Branch: `module/suppliers`
 Platform Baseline: `027a00f61087738038211286ecf9f30ce1bf52a0`
 Core Baseline: `bd0c3e7faa09a297c55fe19bf395393a67a3cf15`
@@ -19,7 +19,7 @@ Verification PR: `#9` (Draft, not merged)
 - BUILD — IMPORT/EXPORT: COMPLETE
 - BUILD — RESPONSIVE UI: COMPLETE
 - BUILD — TEST COVERAGE: COMPLETE
-- VERIFY: IN PROGRESS
+- AUTOMATED VERIFY: PASS — GitHub Actions Run #45 on source HEAD `444b05fee6f0cdc09bf5f769a37e24f0f3a4488d`
 - OWNER UI/UAT REVIEW: NOT STARTED
 - APPROVED MODULE: NO
 - MERGED TO MAIN: NO
@@ -63,8 +63,27 @@ Failure:
 - `modules/suppliers/backend/api/suppliers.controller.ts`: parsed `page` / `pageSize` were inferred as optional before passing into the required `SupplierListQuery` contract.
 
 Root-cause correction:
-- Keep repository/application pagination contract strict.
-- Materialize validated pagination defaults explicitly at the API boundary (`page ?? 1`, `pageSize ?? 25`) rather than weakening the domain/application contract.
-- A fresh full verification run is required after this correction.
+- Kept the repository/application pagination contract strict.
+- Materialized validated pagination defaults explicitly at the API boundary (`page ?? 1`, `pageSize ?? 25`) rather than weakening the application contract.
 
-No PASS claim is allowed until all required gates execute and pass against the exact Suppliers branch HEAD. `main` must remain unchanged until a later explicit owner merge instruction.
+### GitHub Actions Run #45 — PASS
+
+Verified successfully on source HEAD `444b05fee6f0cdc09bf5f769a37e24f0f3a4488d`:
+- Core source snapshot verification
+- install and frozen-lockfile reinstall
+- Prisma generate
+- empty PostgreSQL migration
+- integration database migration/status
+- lint
+- strict typecheck
+- unit tests
+- architecture tests
+- Core + Business integration tests, including Suppliers integration coverage
+- transaction rollback tests
+- authentication tests
+- permission scope regression tests
+- production API + Web build
+
+This STATUS-only documentation commit is intentionally followed by the PR workflow again so the final branch HEAD is also checked. No source or Core behavior is changed by this documentation update.
+
+`main` must remain unchanged until a later explicit owner merge instruction. Suppliers is not an APPROVED MODULE until Owner UI/UAT Review is completed and explicitly approved.
