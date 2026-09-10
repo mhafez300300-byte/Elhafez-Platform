@@ -34,6 +34,9 @@ const aliases: Record<string, string> = {
   '@elhafez/files/contracts': 'modules/files/contracts/index.ts',
   '@elhafez/notifications': 'modules/notifications/index.ts',
   '@elhafez/notifications/contracts': 'modules/notifications/contracts/index.ts',
+  '@elhafez/customers': 'modules/customers/index.ts',
+  '@elhafez/customers/contracts': 'modules/customers/contracts/index.ts',
+  '@elhafez/customers/frontend': 'modules/customers/frontend/index.ts',
 };
 
 const resolvedAliases = Object.entries(aliases)
