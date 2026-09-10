@@ -97,7 +97,9 @@ describe('customers approved specification coverage', () => {
   it('requires dedicated import/export permissions instead of customers.view', async () => {
     const reader = await createSession('customers-spec-reader@example.com', false);
     const role = await prisma.coreRole.create({ data: { key: 'customers-spec-reader', name: 'Customers Spec Reader', companyId } });
-    const viewPermission = await prisma.corePermission.create({ data: { key: 'customers.view', description: 'View customers' } });
+    const viewPermission = await prisma.corePermission.create({
+      data: { key: 'customers.view', description: 'View customers in an authorized scope' },
+    });
     await prisma.coreRolePermission.create({ data: { roleId: role.id, permissionId: viewPermission.id } });
     await prisma.coreUserRoleAssignment.create({
       data: { userId: reader.userId, roleId: role.id, scopeType: 'COMPANY', companyId, branchId: null, scopeKey: `COMPANY:${companyId}` },
