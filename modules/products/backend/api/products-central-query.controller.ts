@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Headers, Param, Query } from '@nestjs/common';
 import { ValidationError } from '@elhafez/errors';
 import { RequirePermission } from '@elhafez/platform-contracts';
 import { parseWithSchema } from '@elhafez/validation';
@@ -45,6 +45,12 @@ export class ProductsCentralQueryController {
       page: integer(parsed.page, 1, 1, 1_000_000),
       pageSize: integer(parsed.pageSize, 25, 1, 100),
     });
+  }
+
+  @Get('company-link/:id')
+  @RequirePermission('products.central-catalog.view')
+  companyLink(@Headers('x-company-id') companyId: string | undefined, @Param('id') id: string) {
+    return this.service.getCompanyLink(parseWithSchema(uuid, companyId), parseWithSchema(uuid, id));
   }
 
   @Get(':id')
