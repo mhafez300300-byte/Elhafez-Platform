@@ -46,6 +46,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@nestjs/testing": "11.1.28",
+    "@swc/core": "1.16.1",
     "@types/bcryptjs": "2.4.6",
     "@types/jsonwebtoken": "9.0.9",
     "@types/node": "22.13.4",
@@ -60,6 +61,7 @@
     "tsx": "4.19.2",
     "typescript": "5.8.3",
     "typescript-eslint": "8.70.0",
+    "unplugin-swc": "1.5.11",
     "vite": "6.1.0",
     "vitest": "3.0.5"
   }

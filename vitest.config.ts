@@ -1,4 +1,5 @@
 import path from 'node:path';
+import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 
 const root = __dirname;
@@ -36,6 +37,22 @@ const aliases: Record<string, string> = {
 };
 
 export default defineConfig({
+  plugins: [
+    swc.vite({
+      tsconfigFile: path.resolve(root, 'tsconfig.base.json'),
+      jsc: {
+        parser: {
+          syntax: 'typescript',
+          decorators: true,
+        },
+        transform: {
+          legacyDecorator: true,
+          decoratorMetadata: true,
+        },
+        target: 'es2022',
+      },
+    }),
+  ],
   resolve: {
     alias: Object.fromEntries(Object.entries(aliases).map(([key, value]) => [key, path.resolve(root, value)])),
   },
