@@ -6,7 +6,7 @@ export interface AuthRepository {
   upsertCredential(input:{userId:string;login:string;passwordHash:string}):Promise<AuthCredential>;
   createSession(input:{id:string;userId:string;refreshTokenHash:string;expiresAt:Date}):Promise<AuthSessionRecord>;
   findSession(id:string):Promise<AuthSessionRecord|null>;
-  rotateSession(id:string,input:{refreshTokenHash:string;expiresAt:Date}):Promise<void>;
+  rotateSession(id:string,expectedRefreshTokenHash:string,input:{refreshTokenHash:string;expiresAt:Date}):Promise<boolean>;
   revokeSession(id:string):Promise<void>;
   revokeAllUserSessions(userId:string):Promise<void>;
 }
