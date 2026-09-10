@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -66,7 +66,8 @@ jobs:
             scripts/ci/empty-database-migration.sh
             apps/api/src/main.ts
             apps/web/src/main.tsx
-            templates/module-template/package.json
+            templates/module-template/package.json.tpl
+            templates/module-template/index.ts.tpl
           )
           for path in "${required[@]}"; do
             test -f "$path" || { echo "Missing required Core source: $path"; exit 1; }
@@ -81,7 +82,7 @@ jobs:
           echo "CORE SOURCE SNAPSHOT PASS"
 
       - name: Setup Node
-        uses: actions/setup-node@v7.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.16.0
 
