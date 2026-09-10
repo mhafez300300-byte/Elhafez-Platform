@@ -62,6 +62,8 @@ export interface LikelyDuplicateProbe {
   primaryPhone: string | null;
   secondaryPhone: string | null;
   whatsappPhone: string | null;
+  nationalId: string | null;
+  taxNumber: string | null;
 }
 
 export interface StrongIdentifierConflicts {
@@ -71,7 +73,7 @@ export interface StrongIdentifierConflicts {
 
 export interface CustomersRepository {
   list(query: CustomerListQuery): Promise<CustomerListResult>;
-  exportList(query: Omit<CustomerListQuery, 'page' | 'pageSize'>): Promise<CustomerSummary[]>;
+  exportList(query: Omit<CustomerListQuery, 'page' | 'pageSize'>): Promise<CustomerDetail[]>;
   get(companyId: string, customerId: string): Promise<CustomerDetail | null>;
   getSensitive(companyId: string, customerId: string): Promise<CustomerSensitiveView | null>;
   findByCreateRequestKey(companyId: string, key: string): Promise<CustomerDetail | null>;

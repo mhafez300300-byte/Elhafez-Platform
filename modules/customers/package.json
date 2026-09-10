@@ -5,6 +5,6 @@
   "exports": {
     ".": "./index.ts",
     "./contracts": "./contracts/index.ts",
-    "./frontend": "./frontend/index.tsx"
+    "./frontend": "./frontend/index.ts"
   }
 }

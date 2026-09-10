@@ -4,13 +4,19 @@ import { AppModule } from '../../apps/api/src/app.module';
 import { PrismaService } from '@elhafez/database';
 
 export async function createTestApp(): Promise<INestApplication> {
-  const moduleRef=await Test.createTestingModule({imports:[AppModule]}).compile();
-  const app=moduleRef.createNestApplication();
+  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+  const app = moduleRef.createNestApplication();
   app.setGlobalPrefix('api');
   await app.init();
   return app;
 }
-export async function resetDatabase(prisma:PrismaService):Promise<void>{
+
+export async function resetDatabase(prisma: PrismaService): Promise<void> {
+  await prisma.customerTagAssignment.deleteMany();
+  await prisma.customerAddress.deleteMany();
+  await prisma.customer.deleteMany();
+  await prisma.customerCategory.deleteMany();
+  await prisma.customerTag.deleteMany();
   await prisma.coreAuditRecord.deleteMany();
   await prisma.coreNotification.deleteMany();
   await prisma.coreFileRecord.deleteMany();

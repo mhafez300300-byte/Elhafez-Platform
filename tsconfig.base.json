@@ -59,7 +59,7 @@
       "@elhafez/notifications/frontend": ["modules/notifications/frontend/index.ts"],
       "@elhafez/customers": ["modules/customers/index.ts"],
       "@elhafez/customers/contracts": ["modules/customers/contracts/index.ts"],
-      "@elhafez/customers/frontend": ["modules/customers/frontend/index.tsx"]
+      "@elhafez/customers/frontend": ["modules/customers/frontend/index.ts"]
     },
     "types": ["node"]
   }
