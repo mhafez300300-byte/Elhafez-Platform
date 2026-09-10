@@ -48,12 +48,41 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
+      - name: Verify complete Core source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            package.json
+            pnpm-workspace.yaml
+            prisma/schema.prisma
+            prisma/schema/core.prisma
+            scripts/check-architecture.mjs
+            scripts/architecture-rules.mjs
+            scripts/ci/empty-database-migration.sh
+            apps/api/src/main.ts
+            apps/web/src/main.tsx
+            templates/module-template/package.json.tpl
+            templates/module-template/index.ts.tpl
+          )
+          for path in "${required[@]}"; do
+            test -f "$path" || { echo "Missing required Core source: $path"; exit 1; }
+          done
+          for module in auth users roles permissions companies branches audit files notifications; do
+            test -f "modules/$module/package.json" || { echo "Missing Core module: $module"; exit 1; }
+          done
+          for dir in apps modules packages prisma tests templates .github; do
+            test -d "$dir" || { echo "Missing required directory: $dir"; exit 1; }
+          done
+          test ! -e .bootstrap || { echo "Obsolete bootstrap transport must not exist"; exit 1; }
+          echo "CORE SOURCE SNAPSHOT PASS"
+
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.16.0
 
@@ -124,7 +153,7 @@ jobs:
       - name: Production build
         run: pnpm build
 
-      - name: Commit verified lockfile bootstrap
+      - name: Commit runtime-verified lockfile
         if: steps.lock.outputs.preexisting == 'false' && github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail

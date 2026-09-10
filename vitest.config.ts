@@ -1,4 +1,5 @@
 import path from 'node:path';
+import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 
 const root = __dirname;
@@ -35,9 +36,29 @@ const aliases: Record<string, string> = {
   '@elhafez/notifications/contracts': 'modules/notifications/contracts/index.ts',
 };
 
+const resolvedAliases = Object.entries(aliases)
+  .sort(([left], [right]) => right.length - left.length)
+  .map(([find, value]) => ({ find, replacement: path.resolve(root, value) }));
+
 export default defineConfig({
+  plugins: [
+    swc.vite({
+      tsconfigFile: path.resolve(root, 'tsconfig.base.json'),
+      jsc: {
+        parser: {
+          syntax: 'typescript',
+          decorators: true,
+        },
+        transform: {
+          legacyDecorator: true,
+          decoratorMetadata: true,
+        },
+        target: 'es2022',
+      },
+    }),
+  ],
   resolve: {
-    alias: Object.fromEntries(Object.entries(aliases).map(([key, value]) => [key, path.resolve(root, value)])),
+    alias: resolvedAliases,
   },
   test: {
     environment: 'node',

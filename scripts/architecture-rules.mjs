@@ -26,7 +26,7 @@ function walk(dir) {
 }
 function importsOf(source){
   const out=[];
-  const re=/(?:import|export)\s+(?:[^'\"]*?\s+from\s+)?['\"]([^'\"]+)['\"]/g;
+  const re=/(?:import|export)\s+(?:[^'"]*?\s+from\s+)?['"]([^'"]+)['"]/g;
   let match; while((match=re.exec(source))) out.push(match[1]);
   return out;
 }
