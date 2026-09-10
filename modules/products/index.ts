@@ -1,5 +1,6 @@
 import { DynamicModule, Module, ModuleMetadata } from '@nestjs/common';
 import { PRODUCT_READER } from './contracts';
+import { ProductsAuditController } from './backend/api/products-audit.controller';
 import { ProductsController } from './backend/api/products.controller';
 import { ProductsPermissionRegistrar } from './backend/application/products-permission.registrar';
 import { PRODUCTS_REPOSITORY } from './backend/application/products.repository';
@@ -12,7 +13,7 @@ export class ProductsModule {
     return {
       module: ProductsModule,
       imports,
-      controllers: [ProductsController],
+      controllers: [ProductsController, ProductsAuditController],
       providers: [
         ProductsService,
         ProductsPermissionRegistrar,
