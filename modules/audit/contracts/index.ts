@@ -1,0 +1,1 @@
+export interface AuditRecordView{id:string;actorId:string|null;companyId:string|null;branchId:string|null;entityType:string;entityId:string|null;action:string;before:unknown;after:unknown;metadata:unknown;requestId:string|null;occurredAt:string;createdAt:string;}

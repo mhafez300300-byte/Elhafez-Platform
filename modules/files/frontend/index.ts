@@ -1,0 +1,1 @@
+import type{FileRecordView}from'../contracts';export const createFilesClient=(baseUrl:string,token:()=>string|null)=>({async list():Promise<FileRecordView[]>{const r=await fetch(`${baseUrl}/files`,{headers:{Authorization:`Bearer ${token()??''}`}});if(!r.ok)throw new Error('Failed to load files');return r.json()as Promise<FileRecordView[]>;}});

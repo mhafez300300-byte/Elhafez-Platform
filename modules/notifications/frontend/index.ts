@@ -1,0 +1,1 @@
+import type{NotificationView}from'../contracts';export const createNotificationsClient=(baseUrl:string,token:()=>string|null)=>({async list():Promise<NotificationView[]>{const r=await fetch(`${baseUrl}/notifications`,{headers:{Authorization:`Bearer ${token()??''}`}});if(!r.ok)throw new Error('Failed to load notifications');return r.json()as Promise<NotificationView[]>;}});

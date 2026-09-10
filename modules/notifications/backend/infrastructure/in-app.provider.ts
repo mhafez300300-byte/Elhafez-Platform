@@ -1,0 +1,1 @@
+import{Injectable}from'@nestjs/common';import type{NotificationProvider}from'../application/notification.repository';@Injectable()export class InAppNotificationProvider implements NotificationProvider{readonly channel='IN_APP' as const;async send(_input:{recipientUserId:string;subject:string;body:string}):Promise<void>{return;}}

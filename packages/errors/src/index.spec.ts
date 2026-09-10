@@ -1,0 +1,1 @@
+import { describe, expect, it } from 'vitest';import { NotFoundError } from './index';describe('AppError',()=>{it('preserves safe code and status',()=>{const e=new NotFoundError('Missing');expect(e.code).toBe('NOT_FOUND');expect(e.status).toBe(404);});});

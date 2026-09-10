@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist/api",
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "noEmit": false
+  },
+  "include": [
+    "apps/api/src/**/*.ts",
+    "modules/*/index.ts",
+    "modules/*/contracts/**/*.ts",
+    "modules/*/backend/**/*.ts",
+    "packages/*/src/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.integration.spec.ts",
+    "modules/*/frontend/**",
+    "packages/ui/**",
+    "tests/**"
+  ]
+}

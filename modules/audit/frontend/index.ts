@@ -1,0 +1,1 @@
+import type{AuditRecordView}from'../contracts';export const createAuditClient=(baseUrl:string,token:()=>string|null)=>({async list():Promise<AuditRecordView[]>{const r=await fetch(`${baseUrl}/audit`,{headers:{Authorization:`Bearer ${token()??''}`}});if(!r.ok)throw new Error('Failed to load audit');return r.json()as Promise<AuditRecordView[]>;}});

@@ -1,0 +1,136 @@
+name: Core Runtime Verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: core-runtime-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-core:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16.4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: elhafez_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d elhafez_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      NODE_ENV: test
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/elhafez_ci?schema=public
+      JWT_ACCESS_SECRET: ci-access-secret-elhafez-platform-0000000001
+      JWT_REFRESH_SECRET: ci-refresh-secret-elhafez-platform-00000001
+      ACCESS_TOKEN_TTL_SECONDS: 900
+      REFRESH_TOKEN_TTL_SECONDS: 2592000
+      FILES_STORAGE_PATH: /tmp/elhafez-platform-files
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.15.1 --activate
+          node --version
+          pnpm --version
+
+      - name: Install and create/verify lockfile
+        id: lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f pnpm-lock.yaml ]]; then
+            echo "preexisting=true" >> "$GITHUB_OUTPUT"
+            pnpm install --frozen-lockfile
+          else
+            echo "preexisting=false" >> "$GITHUB_OUTPUT"
+            pnpm install --no-frozen-lockfile
+          fi
+          test -s pnpm-lock.yaml
+          sha256sum pnpm-lock.yaml | tee /tmp/pnpm-lock.sha256
+
+      - name: Reinstall using frozen lockfile
+        run: |
+          set -euo pipefail
+          rm -rf node_modules
+          pnpm install --frozen-lockfile
+          sha256sum -c /tmp/pnpm-lock.sha256
+
+      - name: Prisma generate
+        run: pnpm prisma:generate
+
+      - name: Empty PostgreSQL migration test
+        run: ./scripts/ci/empty-database-migration.sh
+
+      - name: Migrate integration database
+        run: |
+          pnpm db:migrate
+          pnpm db:status
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test:unit
+
+      - name: Architecture tests
+        run: pnpm test:architecture
+
+      - name: Core integration tests
+        run: pnpm test:integration
+
+      - name: Transaction rollback tests
+        run: pnpm test:transaction
+
+      - name: Authentication tests
+        run: pnpm test:auth
+
+      - name: Permission scope regression tests
+        run: pnpm test:permission-scope
+
+      - name: Production build
+        run: pnpm build
+
+      - name: Commit verified lockfile bootstrap
+        if: steps.lock.outputs.preexisting == 'false' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pnpm-lock.yaml
+          git diff --cached --quiet && exit 0
+          git commit -m "build: commit runtime-verified pnpm lockfile"
+          git push origin HEAD:main

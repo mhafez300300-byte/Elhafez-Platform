@@ -1,0 +1,1 @@
+export type NotificationChannel='IN_APP';export type NotificationStatus='PENDING'|'SENT'|'FAILED';export interface NotificationView{id:string;recipientUserId:string;channel:NotificationChannel;subject:string;body:string;status:NotificationStatus;error:string|null;createdAt:string;sentAt:string|null;}

@@ -1,0 +1,6 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '@elhafez/database';
+import type { CompanyIdentity, CompanyStatus, CompanyView } from '../../contracts';
+import type { CompanyRepository } from '../application/company.repository';
+const map=(r:{id:string;code:string;name:string;status:string;createdAt:Date;updatedAt:Date}):CompanyView=>({id:r.id,code:r.code,name:r.name,status:r.status as CompanyStatus,createdAt:r.createdAt.toISOString(),updatedAt:r.updatedAt.toISOString()});
+@Injectable() export class PrismaCompanyRepository implements CompanyRepository { constructor(private readonly prisma:PrismaService){} async create(input:{code:string;name:string}){return map(await this.prisma.coreCompany.create({data:input}));} async list(){return (await this.prisma.coreCompany.findMany({orderBy:{createdAt:'desc'}})).map(map);} async findById(id:string):Promise<CompanyIdentity|null>{const r=await this.prisma.coreCompany.findUnique({where:{id}});return r?map(r):null;} async findByCode(code:string):Promise<CompanyIdentity|null>{const r=await this.prisma.coreCompany.findUnique({where:{code}});return r?map(r):null;} async setStatus(id:string,status:CompanyStatus):Promise<CompanyView|null>{try{return map(await this.prisma.coreCompany.update({where:{id},data:{status}}));}catch{return null;}} }

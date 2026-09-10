@@ -1,0 +1,2 @@
+import { describe, expect, it } from 'vitest';import { EventBus } from './index';
+describe('EventBus',()=>{it('delivers events and supports unsubscribe',async()=>{const bus=new EventBus();let count=0;const off=bus.subscribe('x',()=>{count+=1});await bus.publish({type:'x',occurredAt:new Date().toISOString()});off();await bus.publish({type:'x',occurredAt:new Date().toISOString()});expect(count).toBe(1);});});

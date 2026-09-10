@@ -1,0 +1,1 @@
+import{InvariantViolationError}from'@elhafez/errors';export class Notification{constructor(readonly recipientUserId:string,readonly subject:string,readonly body:string){if(!recipientUserId||!subject.trim()||!body.trim())throw new InvariantViolationError('Notification recipient, subject and body are required');}}

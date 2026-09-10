@@ -1,0 +1,1 @@
+import type{AuditRequestedEvent}from'@elhafez/platform-contracts';import type{AuditRecordView}from'../../contracts';export interface AuditRepository{append(event:AuditRequestedEvent):Promise<AuditRecordView>;list(limit:number,filter?:{companyId?:string;branchId?:string}):Promise<AuditRecordView[]>;}export const AUDIT_REPOSITORY=Symbol('AUDIT_REPOSITORY');

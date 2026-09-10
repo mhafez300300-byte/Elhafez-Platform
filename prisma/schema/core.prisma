@@ -1,0 +1,169 @@
+model CoreUser {
+  id            String   @id @default(uuid()) @db.Uuid
+  email         String   @unique @db.VarChar(160)
+  displayName   String   @map("display_name") @db.VarChar(120)
+  status        String   @default("ACTIVE") @db.VarChar(20)
+  platformAdmin Boolean  @default(false) @map("platform_admin")
+  tokenVersion  Int      @default(0) @map("token_version")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("core_users")
+}
+
+model CoreAuthCredential {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @unique @map("user_id") @db.Uuid
+  login        String   @unique @db.VarChar(160)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("core_auth_credentials")
+}
+
+model CoreAuthSession {
+  id               String    @id @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  refreshTokenHash String    @unique @map("refresh_token_hash") @db.VarChar(64)
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("core_auth_sessions")
+}
+
+model CoreRole {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique @db.VarChar(80)
+  name      String   @db.VarChar(120)
+  status    String   @default("ACTIVE") @db.VarChar(20)
+  companyId String?  @map("company_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([companyId])
+  @@map("core_roles")
+}
+
+model CorePermission {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique @db.VarChar(120)
+  description String   @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("core_permissions")
+}
+
+model CoreRolePermission {
+  id           String   @id @default(uuid()) @db.Uuid
+  roleId       String   @map("role_id") @db.Uuid
+  permissionId String   @map("permission_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([roleId, permissionId])
+  @@index([permissionId])
+  @@map("core_role_permissions")
+}
+
+model CoreUserRoleAssignment {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  roleId    String   @map("role_id") @db.Uuid
+  scopeType String   @map("scope_type") @db.VarChar(20)
+  companyId String?  @map("company_id") @db.Uuid
+  branchId  String?  @map("branch_id") @db.Uuid
+  scopeKey  String   @map("scope_key") @db.VarChar(160)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([userId, roleId, scopeKey])
+  @@index([userId])
+  @@index([roleId])
+  @@index([companyId])
+  @@index([branchId])
+  @@map("core_user_role_assignments")
+}
+
+model CoreCompany {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique @db.VarChar(30)
+  name      String   @db.VarChar(160)
+  status    String   @default("ACTIVE") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("core_companies")
+}
+
+model CoreBranch {
+  id        String   @id @default(uuid()) @db.Uuid
+  companyId String   @map("company_id") @db.Uuid
+  code      String   @db.VarChar(30)
+  name      String   @db.VarChar(120)
+  status    String   @default("ACTIVE") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([companyId, code])
+  @@index([companyId])
+  @@map("core_branches")
+}
+
+model CoreAuditRecord {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @map("actor_id") @db.Uuid
+  companyId  String?  @map("company_id") @db.Uuid
+  branchId   String?  @map("branch_id") @db.Uuid
+  entityType String   @map("entity_type") @db.VarChar(80)
+  entityId   String?  @map("entity_id") @db.VarChar(120)
+  action     String   @db.VarChar(120)
+  beforeData Json?    @map("before_data")
+  afterData  Json?    @map("after_data")
+  metadata   Json?
+  requestId  String?  @map("request_id") @db.VarChar(100)
+  occurredAt DateTime @map("occurred_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([actorId])
+  @@index([companyId])
+  @@index([branchId])
+  @@index([occurredAt])
+  @@map("core_audit_records")
+}
+
+model CoreFileRecord {
+  id             String   @id @default(uuid()) @db.Uuid
+  originalName   String   @map("original_name") @db.VarChar(255)
+  mimeType       String   @map("mime_type") @db.VarChar(120)
+  size           Int
+  storageKey     String   @unique @map("storage_key") @db.VarChar(180)
+  checksumSha256 String   @map("checksum_sha256") @db.VarChar(64)
+  uploadedBy     String?  @map("uploaded_by") @db.Uuid
+  companyId      String?  @map("company_id") @db.Uuid
+  branchId       String?  @map("branch_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([uploadedBy])
+  @@index([companyId])
+  @@index([branchId])
+  @@map("core_file_records")
+}
+
+model CoreNotification {
+  id              String    @id @default(uuid()) @db.Uuid
+  recipientUserId String    @map("recipient_user_id") @db.Uuid
+  channel         String    @db.VarChar(20)
+  subject         String    @db.VarChar(160)
+  body            String    @db.Text
+  status          String    @default("PENDING") @db.VarChar(20)
+  error           String?   @db.Text
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  sentAt          DateTime? @map("sent_at") @db.Timestamptz(6)
+
+  @@index([recipientUserId])
+  @@index([status])
+  @@map("core_notifications")
+}

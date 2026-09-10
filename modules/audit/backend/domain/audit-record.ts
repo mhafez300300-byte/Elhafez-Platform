@@ -1,0 +1,1 @@
+import{InvariantViolationError}from'@elhafez/errors';export class AuditRecord{constructor(readonly entityType:string,readonly action:string){if(!entityType.trim()||!action.trim())throw new InvariantViolationError('Audit entity and action are required');}}

@@ -1,0 +1,1 @@
+import type { CompanyView } from '../contracts'; export const createCompaniesClient=(baseUrl:string,token:()=>string|null)=>({async list():Promise<CompanyView[]>{const r=await fetch(`${baseUrl}/companies`,{headers:{Authorization:`Bearer ${token()??''}`}});if(!r.ok)throw new Error('Failed to load companies');return r.json() as Promise<CompanyView[]>;}});

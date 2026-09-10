@@ -1,0 +1,1 @@
+import type{PermissionView}from'../contracts';export const createPermissionsClient=(baseUrl:string,token:()=>string|null)=>({async list():Promise<PermissionView[]>{const r=await fetch(`${baseUrl}/permissions`,{headers:{Authorization:`Bearer ${token()??''}`}});if(!r.ok)throw new Error('Failed to load permissions');return r.json()as Promise<PermissionView[]>;}});

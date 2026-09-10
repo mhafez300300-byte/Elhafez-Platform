@@ -1,0 +1,1 @@
+import { describe, expect, it } from 'vitest';import { PdfRenderer } from './index';describe('PdfRenderer',()=>{it('creates a real PDF document',async()=>{const bytes=await new PdfRenderer().render({title:'Elhafez',lines:['Core verification']});expect(Buffer.from(bytes).subarray(0,4).toString()).toBe('%PDF');expect(bytes.byteLength).toBeGreaterThan(500);});});

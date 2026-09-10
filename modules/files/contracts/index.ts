@@ -1,0 +1,1 @@
+export interface FileRecordView{id:string;originalName:string;mimeType:string;size:number;storageKey:string;checksumSha256:string;uploadedBy:string|null;companyId:string|null;branchId:string|null;createdAt:string;}export interface StoredFile{record:FileRecordView;bytes:Uint8Array;}

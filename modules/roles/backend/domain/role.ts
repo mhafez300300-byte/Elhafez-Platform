@@ -1,0 +1,1 @@
+import { InvariantViolationError } from '@elhafez/errors'; export class Role { constructor(readonly key:string,readonly name:string){if(!/^[a-z0-9._-]{3,80}$/.test(key))throw new InvariantViolationError('Invalid role key');if(!name.trim())throw new InvariantViolationError('Role name is required');} }

@@ -1,0 +1,1 @@
+import type { RoleView } from '../contracts';export const createRolesClient=(baseUrl:string,token:()=>string|null)=>({async list():Promise<RoleView[]>{const r=await fetch(`${baseUrl}/roles`,{headers:{Authorization:`Bearer ${token()??''}`}});if(!r.ok)throw new Error('Failed to load roles');return r.json() as Promise<RoleView[]>;}});

@@ -1,0 +1,1 @@
+import { InvariantViolationError } from '@elhafez/errors';export class Branch{constructor(readonly code:string,readonly name:string){if(!/^[A-Z0-9-]{2,30}$/.test(code))throw new InvariantViolationError('Invalid branch code');if(!name.trim())throw new InvariantViolationError('Branch name is required');}}

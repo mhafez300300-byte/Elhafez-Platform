@@ -1,0 +1,1 @@
+import { describe, expect, it } from 'vitest';import { z } from 'zod';import { parseWithSchema } from './index';describe('validation',()=>{it('parses valid and rejects invalid data',()=>{expect(parseWithSchema(z.object({x:z.number()}),{x:1}).x).toBe(1);expect(()=>parseWithSchema(z.object({x:z.number()}),{x:'1'})).toThrow();});});
