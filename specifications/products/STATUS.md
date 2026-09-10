@@ -1,11 +1,13 @@
 # Products / Drug Catalog Module v1 — Status
 
-Module Version: 1.0 (proposed)
-Current Stage: DISCOVER + DESIGN — AWAITING OWNER APPROVAL
+Module Version: 1.0
+Current Stage: APPROVED SPECIFICATION — BUILD AUTHORIZED
 Platform Baseline SHA: 2a8dbaa7e8ab665e0e8c59cd7fa92810ef80ec82
 Core Baseline SHA: bd0c3e7faa09a297c55fe19bf395393a67a3cf15
 Branch: module/products
-Last Stable Commit: 379cc84aefd64df5223529314fdf72590c0fb3d2
+Approved Specification: specifications/products/APPROVED-SPECIFICATION.md
+Specification Commit: 0654c7510d0b1ab0a189c66ff752899289ad4029
+Last Stable Commit: 0654c7510d0b1ab0a189c66ff752899289ad4029
 
 ## Completed Work
 - Read latest `main` and confirmed current Platform baseline.
@@ -14,36 +16,51 @@ Last Stable Commit: 379cc84aefd64df5223529314fdf72590c0fb3d2
 - Read `MODULE-STANDARD.md`.
 - Read `TESTING-STANDARD.md`.
 - Inspected `templates/module-template/` structure and required public exports.
-- Inspected current approved Business Modules and existing Customers/Suppliers specifications.
-- Confirmed no `specifications/products/` Approved Specification existed on `main` before this branch.
-- Confirmed no pre-existing `module/products` branch was found before branch creation.
+- Inspected current approved Business Modules and Customers/Suppliers specifications.
+- Confirmed no Products Approved Specification existed on `main` before this branch.
+- Confirmed no pre-existing `module/products` branch before branch creation.
 - Created `module/products` from current `main` SHA `2a8dbaa7e8ab665e0e8c59cd7fa92810ef80ec82`.
-- Created `specifications/products/DESIGN-DRAFT.md` only; no Source Code or feature implementation.
+- Completed DISCOVER + DESIGN.
+- Owner approved the design with explicit addition: `ADD CENTRAL EGYPT DRUG CATALOG`.
+- Created frozen `specifications/products/APPROVED-SPECIFICATION.md` in independent specification commit `0654c7510d0b1ab0a189c66ff752899289ad4029`.
+- Approved scope explicitly includes Company Product Catalog plus Central Egyptian Drug Reference Catalog inside Products ownership.
+- Central catalog provenance, ingestion, conflict quarantine, company adoption/linking, company override protection, compare/apply updates, permissions and audit are frozen requirements.
+- No Products Source Code was included in the specification commit.
 
 ## Remaining Work
-- Owner review of Products / Drug Catalog design.
-- Resolve any Owner-requested design changes.
-- Owner explicit `APPROVED` decision.
-- After approval only: create `specifications/products/APPROVED-SPECIFICATION.md` in a separate specification commit.
-- BUILD and all later lifecycle stages remain blocked until approval.
+- BUILD — module structure/domain/contracts.
+- BUILD — Prisma ownership/schema/migration.
+- BUILD — application/infrastructure/API.
+- BUILD — permissions/audit.
+- BUILD — company import/export/bulk update.
+- BUILD — central Egyptian drug reference catalog ingestion/search/adoption/update flows.
+- BUILD — responsive frontend UI.
+- BUILD — tests and composition wiring.
+- AUTOMATED VERIFY.
+- OWNER UI/UAT REVIEW.
+- FIXES if required.
+- FINAL VERIFY.
+- APPROVED MODULE decision.
+- MERGE only after explicit Owner command.
 
 ## Known Bugs
-- None identified because Products source code does not yet exist.
+- None identified yet because Products BUILD has not started.
 
 ## Change Requests
 - None open.
-- Optional scope decision documented in design: centrally synchronized platform-global Egyptian drug reference catalog is not silently included in v1 unless explicitly approved with source/provenance/sync policy.
+- Any requirement change after specification commit is a PRODUCTS MODULE CHANGE REQUEST.
+- Any genuine Core defect is a separate CORE CHANGE REQUEST and cannot be patched silently.
 
 ## Verification Results
-- GitHub `main` HEAD verified as `2a8dbaa7e8ab665e0e8c59cd7fa92810ef80ec82`.
+- GitHub `main` baseline was verified as `2a8dbaa7e8ab665e0e8c59cd7fa92810ef80ec82` before Products branch creation.
 - GitHub Actions `Core Runtime Verification` Run #48 on that SHA: SUCCESS.
-- Frozen install, frozen reinstall, Prisma generate, empty DB migration, integration DB migration, lint, typecheck, unit, architecture, Core integration, transaction rollback, authentication, permission-scope regression and production build were reported successful in Run #48.
-- Products automated verification: NOT APPLICABLE / NOT STARTED because BUILD is not approved.
+- Frozen install, frozen reinstall, Prisma generate, empty DB migration, integration DB migration, lint, typecheck, unit, architecture, Core integration, transaction rollback, authentication, permission-scope regression and production build were successful in Run #48.
+- Products automated verification: NOT STARTED — BUILD now authorized.
+- Central Egyptian catalog population with a real verified source dataset: NOT VERIFIED until an approved provenance-bearing dataset is ingested; fabricated/unverified seed data is forbidden.
 
 ## Next Required Action
-OWNER APPROVAL OR DESIGN CHANGES.
+BUILD PRODUCTS v1 END-TO-END ACCORDING TO APPROVED SPECIFICATION.
 
 No merge to `main` performed.
 No Railway action performed.
 No Core modification performed.
-No Products Source Code written.
