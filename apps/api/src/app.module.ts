@@ -16,6 +16,7 @@ import { AuditModule } from '@elhafez/audit';
 import { FilesModule } from '@elhafez/files';
 import { NotificationsModule } from '@elhafez/notifications';
 import { CustomersModule } from '@elhafez/customers';
+import { SuppliersModule } from '@elhafez/suppliers';
 import { HealthController } from './health.controller';
 
 const branches = BranchesModule.register([CompaniesModule]);
@@ -40,6 +41,7 @@ const notifications = NotificationsModule.register([UsersModule]);
     FilesModule,
     notifications,
     CustomersModule,
+    SuppliersModule,
   ],
   controllers: [HealthController],
   providers: [

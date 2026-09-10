@@ -1,6 +1,6 @@
 # Suppliers Module v1 — Build Status
 
-Status: BUILD IN PROGRESS
+Status: BUILD IMPLEMENTATION COMPLETE — VERIFY PENDING
 Branch: `module/suppliers`
 Platform Baseline: `027a00f61087738038211286ecf9f30ce1bf52a0`
 Core Baseline: `bd0c3e7faa09a297c55fe19bf395393a67a3cf15`
@@ -11,20 +11,41 @@ Approved Specification: `specifications/suppliers/APPROVED-SPECIFICATION.md`
 - DISCOVER: COMPLETE
 - DESIGN: APPROVED
 - SPECIFICATION FREEZE: COMPLETE
-- BUILD: IN PROGRESS
+- BUILD — DOMAIN/CONTRACTS: COMPLETE
+- BUILD — PRISMA OWNERSHIP/MIGRATION: COMPLETE
+- BUILD — APPLICATION/API: COMPLETE
+- BUILD — PERMISSIONS/AUDIT: COMPLETE
+- BUILD — IMPORT/EXPORT: COMPLETE
+- BUILD — RESPONSIVE UI: COMPLETE
+- BUILD — TEST COVERAGE: COMPLETE
 - VERIFY: NOT VERIFIED
 - OWNER UI/UAT REVIEW: NOT STARTED
 - APPROVED MODULE: NO
 - MERGED TO MAIN: NO
 
-## Build guardrails
+## Implemented scope
 
-- Work only on `module/suppliers`.
-- Do not modify Core-owned modules/packages or approved Core architecture behavior.
-- Do not merge or write to `main` during BUILD.
-- Suppliers owns supplier master data only; purchases, accounting, payments, inventory and transactional reporting remain outside the module.
-- Every implemented capability must remain functional, permission-protected where required, audited where required, and backed by verification evidence before approval.
+- Supplier master data with `INDIVIDUAL` / `COMPANY` type and generated supplier code.
+- Contact information, website and sensitive identifiers.
+- Multiple supplier addresses with one active default enforced by the database.
+- Multiple supplier contacts with one active primary contact enforced by the database.
+- Configurable supplier categories and tags.
+- ACTIVE / SUSPENDED / ARCHIVED lifecycle without normal hard delete.
+- Company-scoped search, filters and server-side pagination, including contact-person search.
+- Soft duplicate warnings plus hard company-scoped uniqueness for national ID, tax number and commercial registration.
+- Optimistic version checks for supplier/address/contact updates.
+- Idempotent supplier creation and idempotent whole-batch import.
+- CSV import with row rejection reporting and full-batch rollback semantics.
+- CSV export of supplier-owned non-sensitive data.
+- Explicit suppliers permissions and central audit events.
+- Public `SUPPLIER_READER` contract and supplier changed events.
+- Desktop/tablet/mobile UI with mobile supplier cards.
+- Integration wiring in API/Web/test composition roots and tool aliases only.
 
-## Current checkpoint
+## Ownership exclusions preserved
 
-Build started from the approved specification. Source implementation and integration wiring are being added on the Suppliers branch. Verification status remains `NOT VERIFIED` until the exact required CI gates execute and pass.
+No Purchases, supplier invoices, purchase returns, Accounting balances, Payments, Cash/Treasury, GL, inventory receipts, supplier statements, or transactional purchase history are owned or persisted by Suppliers.
+
+## Verification status
+
+Source implementation is complete on the Suppliers branch, but no PASS claim is allowed yet. The required GitHub Actions gates must execute against the exact branch HEAD. Any failure must be fixed on `module/suppliers`, followed by a new full verification run. `main` must remain unchanged until a later explicit owner merge instruction.
