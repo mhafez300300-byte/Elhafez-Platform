@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Headers, Inject, Param, Patch, Post, Query, Req } from '@nestjs/common';
-import { AuthorizationError, ValidationError } from '@elhafez/errors';
+import { AuthorizationError } from '@elhafez/errors';
 import { PERMISSION_CHECKER, type PermissionChecker } from '@elhafez/permissions/contracts';
 import { RequirePermission, type AccessPrincipal } from '@elhafez/platform-contracts';
 import { parseWithSchema } from '@elhafez/validation';
