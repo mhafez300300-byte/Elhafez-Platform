@@ -44,7 +44,7 @@
     "zod": "3.24.2"
   },
   "devDependencies": {
-    "@eslint/js": "10.10.0",
+    "@eslint/js": "10.0.1",
     "@nestjs/testing": "11.1.28",
     "@types/bcryptjs": "2.4.6",
     "@types/jsonwebtoken": "9.0.9",
