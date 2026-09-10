@@ -12,6 +12,25 @@ export async function createTestApp(): Promise<INestApplication> {
 }
 
 export async function resetDatabase(prisma: PrismaService): Promise<void> {
+  await prisma.productImportChunk.deleteMany();
+  await prisma.productImportSession.deleteMany();
+  await prisma.productBarcode.deleteMany();
+  await prisma.productUnit.deleteMany();
+  await prisma.productTagAssignment.deleteMany();
+  await prisma.productIngredientAssignment.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.productCategory.updateMany({ data: { parentId: null } });
+  await prisma.productCategory.deleteMany();
+  await prisma.productTag.deleteMany();
+  await prisma.productManufacturer.deleteMany();
+  await prisma.productIngredientMaster.deleteMany();
+  await prisma.productDosageForm.deleteMany();
+  await prisma.productRoute.deleteMany();
+  await prisma.centralDrugBarcode.deleteMany();
+  await prisma.centralDrugIngredient.deleteMany();
+  await prisma.centralDrugReference.deleteMany();
+  await prisma.centralDrugDataset.deleteMany();
+  await prisma.centralDrugSource.deleteMany();
   await prisma.supplierTagAssignment.deleteMany();
   await prisma.supplierContact.deleteMany();
   await prisma.supplierAddress.deleteMany();
