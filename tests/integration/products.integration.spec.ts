@@ -62,11 +62,13 @@ describe('Products v1 integration and API',()=>{
   await request(app.getHttpServer()).get(`/api/products/${created.body.product.id}`).set(scoped(admin,other.id,branchId)).expect(404);
 
   const wrongBranchFile=await createImage(companyId,otherBranchId);
-  await createProduct('product-image-wrong-branch-002',body({displayName:'Wrong branch image',barcodes:[],imageFileId:wrongBranchFile.id}),scoped(),422);
+  const wrongBranch=await createProduct('product-image-wrong-branch-002',body({displayName:'Wrong branch image',barcodes:[],imageFileId:wrongBranchFile.id}),scoped(),400);
+  expect(wrongBranch.body.error.code).toBe('VALIDATION_ERROR');
   expect(await prisma.product.count({where:{displayName:'Wrong branch image'}})).toBe(0);
 
   const wrongCompanyFile=await createImage(other.id,null);
-  await createProduct('product-image-wrong-company-003',body({displayName:'Wrong company image',barcodes:[],imageFileId:wrongCompanyFile.id}),scoped(),422);
+  const wrongCompany=await createProduct('product-image-wrong-company-003',body({displayName:'Wrong company image',barcodes:[],imageFileId:wrongCompanyFile.id}),scoped(),400);
+  expect(wrongCompany.body.error.code).toBe('VALIDATION_ERROR');
   expect(await prisma.product.count({where:{displayName:'Wrong company image'}})).toBe(0);
  });
 
@@ -115,7 +117,8 @@ describe('Products v1 integration and API',()=>{
  });
 
  it('verifies Central Catalog capability with provenance, quarantine, search, retry, adoption and explicit compare/apply using test fixtures only',async()=>{
-  await request(app.getHttpServer()).post('/api/products/central/sources').set(auth()).send({sourceKey:'bad-source',name:'Bad Source',provenance:'',active:true}).expect(422);
+  const invalidSource=await request(app.getHttpServer()).post('/api/products/central/sources').set(auth()).send({sourceKey:'bad-source',name:'Bad Source',provenance:'',active:true}).expect(400);
+  expect(invalidSource.body.error.code).toBe('VALIDATION_ERROR');
   const source=await request(app.getHttpServer()).post('/api/products/central/sources').set(auth()).send({sourceKey:'fixture-source',name:'TEST FIXTURE SOURCE',provenance:'Synthetic automated-test fixture; not an approved Egyptian medicine dataset.',licenseNote:'Test only',sourceUrl:null,active:true}).expect(201);
   const session=await request(app.getHttpServer()).post('/api/products/central/import/sessions').set(auth()).set('Idempotency-Key','central-import-001').send({sourceId:source.body.id,datasetKey:'fixture-v1',totalRows:2,sourceName:'TEST FIXTURE'}).expect(201);
   const firstRow={row:2,sourceRecordKey:'FIX-001',canonicalName:'Fixture Medicine',arabicName:'دواء اختباري',englishName:'Fixture Medicine',manufacturerName:'Fixture Pharma',ingredientName:'Fixture Ingredient',strengthValue:'500',strengthUnit:'mg',dosageForm:'Tablet',regulatoryId:'FIX-REG-001',atcCode:'N02BE01',baseUnitLabel:'Tablet',packageUnitLabel:'Box',conversionFactor:'20',barcode:'0001112223334',referencePrice:'25.50',marketStatus:'AVAILABLE'};
