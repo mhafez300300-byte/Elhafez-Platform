@@ -64,6 +64,14 @@ function hasOwn<T extends object>(value: T, key: PropertyKey): boolean {
   return Object.prototype.hasOwnProperty.call(value, key);
 }
 
+function hasControlCharacter(value: string): boolean {
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+    if (code <= 31 || code === 127) return true;
+  }
+  return false;
+}
+
 @Injectable()
 export class CustomersService implements CustomerReader {
   constructor(
@@ -467,7 +475,7 @@ export class CustomersService implements CustomerReader {
   }
 
   private assertIdempotencyKey(key: string): void {
-    if (key.trim().length < 8 || key.length > 100 || /[\u0000-\u001f\u007f]/.test(key)) {
+    if (key.trim().length < 8 || key.length > 100 || hasControlCharacter(key)) {
       throw new ValidationError('Idempotency key must contain 8 to 100 visible characters');
     }
   }
