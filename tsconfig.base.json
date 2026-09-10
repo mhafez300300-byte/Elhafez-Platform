@@ -3,7 +3,10 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "lib": ["ES2022", "DOM"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
@@ -18,49 +21,135 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@elhafez/database": ["packages/database/src/index.ts"],
-      "@elhafez/transactions": ["packages/transactions/src/index.ts"],
-      "@elhafez/events": ["packages/events/src/index.ts"],
-      "@elhafez/validation": ["packages/validation/src/index.ts"],
-      "@elhafez/errors": ["packages/errors/src/index.ts"],
-      "@elhafez/logging": ["packages/logging/src/index.ts"],
-      "@elhafez/printing": ["packages/printing/src/index.ts"],
-      "@elhafez/testing": ["packages/testing/src/index.ts"],
-      "@elhafez/platform-contracts": ["packages/contracts/src/index.ts"],
-      "@elhafez/shared-kernel": ["packages/shared-kernel/src/index.ts"],
-      "@elhafez/ui": ["packages/ui/src/index.tsx"],
-      "@elhafez/config": ["packages/config/src/index.ts"],
-      "@elhafez/auth": ["modules/auth/index.ts"],
-      "@elhafez/auth/contracts": ["modules/auth/contracts/index.ts"],
-      "@elhafez/auth/frontend": ["modules/auth/frontend/index.ts"],
-      "@elhafez/users": ["modules/users/index.ts"],
-      "@elhafez/users/contracts": ["modules/users/contracts/index.ts"],
-      "@elhafez/users/frontend": ["modules/users/frontend/index.ts"],
-      "@elhafez/roles": ["modules/roles/index.ts"],
-      "@elhafez/roles/contracts": ["modules/roles/contracts/index.ts"],
-      "@elhafez/roles/frontend": ["modules/roles/frontend/index.ts"],
-      "@elhafez/permissions": ["modules/permissions/index.ts"],
-      "@elhafez/permissions/contracts": ["modules/permissions/contracts/index.ts"],
-      "@elhafez/permissions/frontend": ["modules/permissions/frontend/index.ts"],
-      "@elhafez/companies": ["modules/companies/index.ts"],
-      "@elhafez/companies/contracts": ["modules/companies/contracts/index.ts"],
-      "@elhafez/companies/frontend": ["modules/companies/frontend/index.ts"],
-      "@elhafez/branches": ["modules/branches/index.ts"],
-      "@elhafez/branches/contracts": ["modules/branches/contracts/index.ts"],
-      "@elhafez/branches/frontend": ["modules/branches/frontend/index.ts"],
-      "@elhafez/audit": ["modules/audit/index.ts"],
-      "@elhafez/audit/contracts": ["modules/audit/contracts/index.ts"],
-      "@elhafez/audit/frontend": ["modules/audit/frontend/index.ts"],
-      "@elhafez/files": ["modules/files/index.ts"],
-      "@elhafez/files/contracts": ["modules/files/contracts/index.ts"],
-      "@elhafez/files/frontend": ["modules/files/frontend/index.ts"],
-      "@elhafez/notifications": ["modules/notifications/index.ts"],
-      "@elhafez/notifications/contracts": ["modules/notifications/contracts/index.ts"],
-      "@elhafez/notifications/frontend": ["modules/notifications/frontend/index.ts"],
-      "@elhafez/customers": ["modules/customers/index.ts"],
-      "@elhafez/customers/contracts": ["modules/customers/contracts/index.ts"],
-      "@elhafez/customers/frontend": ["modules/customers/frontend/index.ts"]
+      "@elhafez/database": [
+        "packages/database/src/index.ts"
+      ],
+      "@elhafez/transactions": [
+        "packages/transactions/src/index.ts"
+      ],
+      "@elhafez/events": [
+        "packages/events/src/index.ts"
+      ],
+      "@elhafez/validation": [
+        "packages/validation/src/index.ts"
+      ],
+      "@elhafez/errors": [
+        "packages/errors/src/index.ts"
+      ],
+      "@elhafez/logging": [
+        "packages/logging/src/index.ts"
+      ],
+      "@elhafez/printing": [
+        "packages/printing/src/index.ts"
+      ],
+      "@elhafez/testing": [
+        "packages/testing/src/index.ts"
+      ],
+      "@elhafez/platform-contracts": [
+        "packages/contracts/src/index.ts"
+      ],
+      "@elhafez/shared-kernel": [
+        "packages/shared-kernel/src/index.ts"
+      ],
+      "@elhafez/ui": [
+        "packages/ui/src/index.tsx"
+      ],
+      "@elhafez/config": [
+        "packages/config/src/index.ts"
+      ],
+      "@elhafez/auth": [
+        "modules/auth/index.ts"
+      ],
+      "@elhafez/auth/contracts": [
+        "modules/auth/contracts/index.ts"
+      ],
+      "@elhafez/auth/frontend": [
+        "modules/auth/frontend/index.ts"
+      ],
+      "@elhafez/users": [
+        "modules/users/index.ts"
+      ],
+      "@elhafez/users/contracts": [
+        "modules/users/contracts/index.ts"
+      ],
+      "@elhafez/users/frontend": [
+        "modules/users/frontend/index.ts"
+      ],
+      "@elhafez/roles": [
+        "modules/roles/index.ts"
+      ],
+      "@elhafez/roles/contracts": [
+        "modules/roles/contracts/index.ts"
+      ],
+      "@elhafez/roles/frontend": [
+        "modules/roles/frontend/index.ts"
+      ],
+      "@elhafez/permissions": [
+        "modules/permissions/index.ts"
+      ],
+      "@elhafez/permissions/contracts": [
+        "modules/permissions/contracts/index.ts"
+      ],
+      "@elhafez/permissions/frontend": [
+        "modules/permissions/frontend/index.ts"
+      ],
+      "@elhafez/companies": [
+        "modules/companies/index.ts"
+      ],
+      "@elhafez/companies/contracts": [
+        "modules/companies/contracts/index.ts"
+      ],
+      "@elhafez/companies/frontend": [
+        "modules/companies/frontend/index.ts"
+      ],
+      "@elhafez/branches": [
+        "modules/branches/index.ts"
+      ],
+      "@elhafez/branches/contracts": [
+        "modules/branches/contracts/index.ts"
+      ],
+      "@elhafez/branches/frontend": [
+        "modules/branches/frontend/index.ts"
+      ],
+      "@elhafez/audit": [
+        "modules/audit/index.ts"
+      ],
+      "@elhafez/audit/contracts": [
+        "modules/audit/contracts/index.ts"
+      ],
+      "@elhafez/audit/frontend": [
+        "modules/audit/frontend/index.ts"
+      ],
+      "@elhafez/files": [
+        "modules/files/index.ts"
+      ],
+      "@elhafez/files/contracts": [
+        "modules/files/contracts/index.ts"
+      ],
+      "@elhafez/files/frontend": [
+        "modules/files/frontend/index.ts"
+      ],
+      "@elhafez/notifications": [
+        "modules/notifications/index.ts"
+      ],
+      "@elhafez/notifications/contracts": [
+        "modules/notifications/contracts/index.ts"
+      ],
+      "@elhafez/notifications/frontend": [
+        "modules/notifications/frontend/index.ts"
+      ],
+      "@elhafez/customers": [
+        "modules/customers/index.ts"
+      ],
+      "@elhafez/customers/contracts": [
+        "modules/customers/contracts/index.ts"
+      ],
+      "@elhafez/customers/frontend": [
+        "modules/customers/frontend/index.ts"
+      ]
     },
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   }
 }
