@@ -455,9 +455,9 @@ export class PrismaProductsV1Repository extends PrismaProductsRepository impleme
         { regulatoryId:{ equals:query.search!,mode:'insensitive' } },
         { barcodes:{ some:{ value:query.search!,active:true } } },
         { manufacturer:{ normalizedName:{ contains:search } } },
-        { ingredients:{ some:{ ingredient:{ normalizedName:{ contains:search } } } },
+        { ingredients:{ some:{ ingredient:{ normalizedName:{ contains:search } } } } },
         { category:{ normalizedName:{ contains:search } } },
-        { tags:{ some:{ tag:{ normalizedName:{ contains:search } } } },
+        { tags:{ some:{ tag:{ normalizedName:{ contains:search } } } } },
       ] } : {}),
     };
   }
