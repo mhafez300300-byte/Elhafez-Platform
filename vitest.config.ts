@@ -36,6 +36,10 @@ const aliases: Record<string, string> = {
   '@elhafez/notifications/contracts': 'modules/notifications/contracts/index.ts',
 };
 
+const resolvedAliases = Object.entries(aliases)
+  .sort(([left], [right]) => right.length - left.length)
+  .map(([find, value]) => ({ find, replacement: path.resolve(root, value) }));
+
 export default defineConfig({
   plugins: [
     swc.vite({
@@ -54,7 +58,7 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: Object.fromEntries(Object.entries(aliases).map(([key, value]) => [key, path.resolve(root, value)])),
+    alias: resolvedAliases,
   },
   test: {
     environment: 'node',
