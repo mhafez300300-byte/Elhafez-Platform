@@ -17,12 +17,14 @@ import { FilesModule } from '@elhafez/files';
 import { NotificationsModule } from '@elhafez/notifications';
 import { CustomersModule } from '@elhafez/customers';
 import { SuppliersModule } from '@elhafez/suppliers';
+import { ProductsModule } from '@elhafez/products';
 import { HealthController } from './health.controller';
 
 const branches = BranchesModule.register([CompaniesModule]);
 const auth = AuthModule.register([UsersModule]);
 const permissions = PermissionsModule.register([UsersModule, RolesModule, CompaniesModule, branches]);
 const notifications = NotificationsModule.register([UsersModule]);
+const products = ProductsModule.register([FilesModule, AuditModule]);
 
 @Module({
   imports: [
@@ -42,6 +44,7 @@ const notifications = NotificationsModule.register([UsersModule]);
     notifications,
     CustomersModule,
     SuppliersModule,
+    products,
   ],
   controllers: [HealthController],
   providers: [

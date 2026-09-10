@@ -1,0 +1,10 @@
+{
+  "name": "@elhafez/products",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    ".": "./index.ts",
+    "./contracts": "./contracts/index.ts",
+    "./frontend": "./frontend/index.ts"
+  }
+}
