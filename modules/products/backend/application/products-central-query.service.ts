@@ -16,4 +16,8 @@ export class ProductsCentralQueryService {
     if (!detail) throw new NotFoundError('Central drug reference not found');
     return detail;
   }
+
+  getCompanyLink(companyId: string, referenceId: string) {
+    return this.repository.getCompanyLink(companyId, referenceId);
+  }
 }
