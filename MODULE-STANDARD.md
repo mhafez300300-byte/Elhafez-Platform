@@ -22,6 +22,18 @@ modules/<name>/
 - `@elhafez/<module>/contracts`: the module's public cross-module contracts.
 - `@elhafez/platform-contracts`: platform-wide contracts only.
 
+## Business module persistence ownership
+
+Business modules that own Prisma models declare them in:
+
+`prisma/schema/modules/<module-name>.prisma`
+
+The schema filename is the ownership declaration. Every Prisma model declared in that file is owned only by the matching `modules/<module-name>/` module. A Business Module may access its owned Prisma models only from its own `backend/infrastructure/` layer. It may not access Core-owned models or models declared by another Business Module directly.
+
+Adding a new Business Module does not require adding its name to an architecture allowlist. The generic architecture verifier discovers the module from `modules/<module-name>/`, validates the required module structure, and discovers its model ownership from the matching Prisma schema file when persistence is present.
+
+Core model ownership remains protected by the approved Core baseline and is not transferred through Business Module schemas.
+
 ## Mandatory rules
 Contracts are the only cross-module import surface. Application services depend on repository/provider ports, never Prisma or `packages/database` directly. Repositories and database calls stay in the owning module infrastructure. Domain code has no application/infrastructure/API dependency. Module frontend never imports module backend. Platform packages never depend on modules. Apps compose modules; they do not reach module internals by relative path. No direct table/repository/internal-code access across modules.
 
