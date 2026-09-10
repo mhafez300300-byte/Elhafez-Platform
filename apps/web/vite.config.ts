@@ -11,5 +11,6 @@ export default defineConfig({root:__dirname,plugins:[react()],resolve:{alias:{
 '@elhafez/files/frontend':path.resolve(root,'modules/files/frontend/index.ts'),
 '@elhafez/notifications/frontend':path.resolve(root,'modules/notifications/frontend/index.ts'),
 '@elhafez/customers/frontend':path.resolve(root,'modules/customers/frontend/index.ts'),
+'@elhafez/suppliers/frontend':path.resolve(root,'modules/suppliers/frontend/index.ts'),
 '@elhafez/ui':path.resolve(root,'packages/ui/src/index.tsx'),
 }},build:{outDir:path.resolve(root,'dist/web'),emptyOutDir:true}});

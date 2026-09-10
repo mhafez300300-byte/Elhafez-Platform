@@ -12,6 +12,12 @@ export async function createTestApp(): Promise<INestApplication> {
 }
 
 export async function resetDatabase(prisma: PrismaService): Promise<void> {
+  await prisma.supplierTagAssignment.deleteMany();
+  await prisma.supplierContact.deleteMany();
+  await prisma.supplierAddress.deleteMany();
+  await prisma.supplier.deleteMany();
+  await prisma.supplierCategory.deleteMany();
+  await prisma.supplierTag.deleteMany();
   await prisma.customerTagAssignment.deleteMany();
   await prisma.customerAddress.deleteMany();
   await prisma.customer.deleteMany();

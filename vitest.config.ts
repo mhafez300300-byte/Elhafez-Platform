@@ -37,6 +37,9 @@ const aliases: Record<string, string> = {
   '@elhafez/customers': 'modules/customers/index.ts',
   '@elhafez/customers/contracts': 'modules/customers/contracts/index.ts',
   '@elhafez/customers/frontend': 'modules/customers/frontend/index.ts',
+  '@elhafez/suppliers': 'modules/suppliers/index.ts',
+  '@elhafez/suppliers/contracts': 'modules/suppliers/contracts/index.ts',
+  '@elhafez/suppliers/frontend': 'modules/suppliers/frontend/index.ts',
 };
 
 const resolvedAliases = Object.entries(aliases)
@@ -48,21 +51,13 @@ export default defineConfig({
     swc.vite({
       tsconfigFile: path.resolve(root, 'tsconfig.base.json'),
       jsc: {
-        parser: {
-          syntax: 'typescript',
-          decorators: true,
-        },
-        transform: {
-          legacyDecorator: true,
-          decoratorMetadata: true,
-        },
+        parser: { syntax: 'typescript', decorators: true },
+        transform: { legacyDecorator: true, decoratorMetadata: true },
         target: 'es2022',
       },
     }),
   ],
-  resolve: {
-    alias: resolvedAliases,
-  },
+  resolve: { alias: resolvedAliases },
   test: {
     environment: 'node',
     globals: true,
