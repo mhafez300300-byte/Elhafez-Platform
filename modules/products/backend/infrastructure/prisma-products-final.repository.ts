@@ -37,7 +37,7 @@ export class PrismaProductsFinalRepository extends PrismaProductsV1Repository {
     return {
       status: result.status,
       central,
-      ...(result.reason ? { reason: result.reason } : {}),
+      reason: result.reason,
     };
   }
 }
