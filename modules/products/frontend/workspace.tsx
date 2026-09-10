@@ -1,3 +1,6 @@
+import './products.css';
+import './v1/products-v1.css';
+
 export { ProductsWorkspace } from './v1/workspace';
 export type { ProductsWorkspaceProps } from './v1/workspace';
 
