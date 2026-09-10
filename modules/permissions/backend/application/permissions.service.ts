@@ -1,17 +1,28 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NotFoundError, ConflictError } from '@elhafez/errors';
+import { ConflictError, NotFoundError, ValidationError } from '@elhafez/errors';
 import { EventBus } from '@elhafez/events';
 import type { AuditRequestedEvent } from '@elhafez/platform-contracts';
 import { USER_IDENTITY_READER, type UserIdentityReader } from '@elhafez/users/contracts';
 import { ROLE_STATUS_READER, type RoleStatusReader } from '@elhafez/roles/contracts';
 import { COMPANY_STATUS_READER, type CompanyStatusReader } from '@elhafez/companies/contracts';
 import { BRANCH_STATUS_READER, type BranchStatusReader } from '@elhafez/branches/contracts';
-import { type PermissionChecker, type PermissionScope } from '../../contracts';
+import {
+  type PermissionChecker,
+  type PermissionDefinition,
+  type PermissionDefinitionRegistry,
+  type PermissionScope,
+  type PermissionView,
+} from '../../contracts';
+import {
+  normalizePermissionDefinitions,
+  PermissionDefinitionConflictError,
+  PermissionDefinitionValidationError,
+} from '../domain/permission-definition';
 import { buildScopeKey } from '../domain/permission-scope';
 import { PERMISSION_REPOSITORY, type PermissionRepository } from './permission.repository';
 
 @Injectable()
-export class PermissionsService implements PermissionChecker {
+export class PermissionsService implements PermissionChecker, PermissionDefinitionRegistry {
   constructor(
     @Inject(PERMISSION_REPOSITORY) private readonly repo: PermissionRepository,
     @Inject(USER_IDENTITY_READER) private readonly users: UserIdentityReader,
@@ -21,8 +32,23 @@ export class PermissionsService implements PermissionChecker {
     private readonly events: EventBus,
   ) {}
 
-  list() {
+  list(): Promise<PermissionView[]> {
     return this.repo.listPermissions();
+  }
+
+  async registerDefinitions(definitions: readonly PermissionDefinition[]): Promise<PermissionView[]> {
+    let normalized: PermissionDefinition[];
+    try {
+      normalized = normalizePermissionDefinitions(definitions);
+    } catch (error) {
+      this.rethrowRegistrationError(error);
+    }
+
+    try {
+      return await this.repo.registerDefinitions(normalized!);
+    } catch (error) {
+      this.rethrowRegistrationError(error);
+    }
   }
 
   async grantToRole(roleId: string, permissionKey: string, actorId?: string) {
@@ -185,5 +211,15 @@ export class PermissionsService implements PermissionChecker {
         branch.status === 'ACTIVE' &&
         branch.companyId === context.companyId,
     );
+  }
+
+  private rethrowRegistrationError(error: unknown): never {
+    if (error instanceof PermissionDefinitionValidationError) {
+      throw new ValidationError(error.message, { field: error.field });
+    }
+    if (error instanceof PermissionDefinitionConflictError) {
+      throw new ConflictError(error.message);
+    }
+    throw error;
   }
 }
