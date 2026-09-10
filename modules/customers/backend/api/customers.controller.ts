@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Headers, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import { ValidationError } from '@elhafez/errors';
 import { RequirePermission, type AccessPrincipal } from '@elhafez/platform-contracts';
 import { parseWithSchema } from '@elhafez/validation';
 import { z } from 'zod';
@@ -104,9 +105,7 @@ export class CustomersController {
       page: page ?? 1,
       pageSize: pageSize ?? 25,
     });
-    if (parsed.createdFrom && parsed.createdTo && parsed.createdFrom > parsed.createdTo) {
-      throw new Error('createdFrom must be before createdTo');
-    }
+    this.assertDateRange(parsed.createdFrom, parsed.createdTo);
     return this.service.list({ companyId: scope, ...parsed });
   }
 
@@ -252,6 +251,7 @@ export class CustomersController {
       createdFrom: createdFrom || undefined,
       createdTo: createdTo || undefined,
     });
+    this.assertDateRange(parsed.createdFrom, parsed.createdTo);
     return this.service.exportCsv({ companyId: this.company(companyId), ...parsed });
   }
 
@@ -413,5 +413,11 @@ export class CustomersController {
       branchId: branchId ? parseWithSchema(uuid, branchId) : undefined,
       requestId: requestId?.slice(0, 100),
     };
+  }
+
+  private assertDateRange(from: Date | undefined, to: Date | undefined): void {
+    if (from && to && from > to) {
+      throw new ValidationError('createdFrom must be before createdTo');
+    }
   }
 }
