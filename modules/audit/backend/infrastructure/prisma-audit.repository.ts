@@ -3,7 +3,10 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '@elhafez/database';
 import type { AuditRequestedEvent } from '@elhafez/platform-contracts';
 import type { AuditRecordView } from '../../contracts';
-import type { AuditRepository } from '../application/audit.repository';
+import type {
+  AuditEntityHistoryRepositoryQuery,
+  AuditRepository,
+} from '../application/audit.repository';
 
 type AuditRow = {
   id: string;
@@ -79,5 +82,30 @@ export class PrismaAuditRepository implements AuditRepository {
       orderBy: { occurredAt: 'desc' },
     });
     return rows.map(map);
+  }
+
+  async getEntityHistory(query: AuditEntityHistoryRepositoryQuery) {
+    const where: Prisma.CoreAuditRecordWhereInput = {
+      companyId: query.companyId,
+      entityType: query.entityType,
+      entityId: query.entityId,
+      ...(query.branchId ? { branchId: query.branchId } : {}),
+    };
+
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.coreAuditRecord.findMany({
+        where,
+        skip: query.skip,
+        take: query.take,
+        orderBy: [
+          { occurredAt: 'desc' },
+          { createdAt: 'desc' },
+          { id: 'desc' },
+        ],
+      }),
+      this.prisma.coreAuditRecord.count({ where }),
+    ]);
+
+    return { items: rows.map(map), total };
   }
 }
