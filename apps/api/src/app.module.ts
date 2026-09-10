@@ -24,7 +24,7 @@ const branches = BranchesModule.register([CompaniesModule]);
 const auth = AuthModule.register([UsersModule]);
 const permissions = PermissionsModule.register([UsersModule, RolesModule, CompaniesModule, branches]);
 const notifications = NotificationsModule.register([UsersModule]);
-const products = ProductsModule.register([FilesModule]);
+const products = ProductsModule.register([FilesModule, AuditModule]);
 
 @Module({
   imports: [
