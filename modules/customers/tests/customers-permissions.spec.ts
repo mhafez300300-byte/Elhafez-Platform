@@ -20,8 +20,8 @@ describe('customers permission registration', () => {
       'customers.view',
       'customers.create',
       'customers.update',
-      'customers.change_status',
-      'customers.view_sensitive',
+      'customers.change-status',
+      'customers.view-sensitive',
       'customers.export',
       'customers.import',
     ]);
