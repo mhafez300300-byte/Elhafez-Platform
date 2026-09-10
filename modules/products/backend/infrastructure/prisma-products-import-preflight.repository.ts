@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@elhafez/database';
 import { normalizeBarcode, normalizeSearchText } from '../domain/product';
-import type { CentralImportRow, CompanyImportRow } from '../application/products.repository';
+import type { CentralImportRow, CompanyImportRow, ImportIngredientRow } from '../application/products.repository';
 import type { ImportPreflightResult, ImportPreflightRow, ProductsImportPreflightRepository } from '../application/products-import-preflight.repository';
 
 @Injectable()
@@ -55,7 +55,10 @@ export class PrismaProductsImportPreflightRepository implements ProductsImportPr
       if (!row.displayName.trim()) { reasons.push('Display name is required'); rejected = true; }
       if (row.productType !== 'DRUG' && row.productType !== 'NON_DRUG') { reasons.push('Product type is invalid'); rejected = true; }
       if (row.barcode && !barcode) { reasons.push('Barcode is invalid'); rejected = true; }
-      if (row.referencePrice && (!/^\d+(?:\.\d{1,4})?$/.test(row.referencePrice.trim()) || Number(row.referencePrice) < 0)) { reasons.push('Reference price is invalid'); rejected = true; }
+      if (row.referencePrice && !validDecimal(row.referencePrice, 4)) { reasons.push('Reference price is invalid'); rejected = true; }
+      const ingredientIssues = validateIngredients(row);
+      if (ingredientIssues.length) { reasons.push(...ingredientIssues); rejected = true; }
+      if (row.productType === 'NON_DRUG' && ingredientList(row).length) { reasons.push('Non-drug row cannot contain active ingredients'); rejected = true; }
       if (code && duplicateCodes.has(code)) { reasons.push('Product code is duplicated inside this import chunk'); rejected = true; }
       if (barcode && duplicateBarcodes.has(barcode)) { reasons.push('Barcode is duplicated inside this import chunk'); rejected = true; }
       if (regulatoryId && duplicateRegs.has(regulatoryId)) { reasons.push('Regulatory ID is duplicated inside this import chunk'); rejected = true; }
@@ -72,7 +75,7 @@ export class PrismaProductsImportPreflightRepository implements ProductsImportPr
       if (!rejected) {
         const similar = nameMap.get(normalizedName) ?? [];
         if (similar.some((product) => !target || product.id !== target.id)) reasons.push('Likely duplicate name exists; review manufacturer/strength before execution');
-        if (row.productType === 'DRUG' && !row.ingredientName && !row.ingredients?.length) reasons.push('Drug has no ingredient in import row; it will remain a draft until completed');
+        if (row.productType === 'DRUG' && ingredientList(row).length === 0) reasons.push('Drug has no ingredient in import row; it will remain a draft until completed');
       }
       return { row: row.row, status: rejected ? 'REJECT' : reasons.length ? 'WARNING' : 'ACCEPT', reasons };
     });
@@ -107,7 +110,9 @@ export class PrismaProductsImportPreflightRepository implements ProductsImportPr
       let rejected = false;
       if (!sourceRecordKey || !row.canonicalName.trim()) { reasons.push('sourceRecordKey and canonicalName are required'); rejected = true; }
       if (row.barcode && !barcode) { reasons.push('Barcode is invalid'); rejected = true; }
-      if (row.referencePrice && (!/^\d+(?:\.\d{1,4})?$/.test(row.referencePrice.trim()) || Number(row.referencePrice) < 0)) { reasons.push('Reference price is invalid'); rejected = true; }
+      if (row.referencePrice && !validDecimal(row.referencePrice, 4)) { reasons.push('Reference price is invalid'); rejected = true; }
+      const ingredientIssues = validateIngredients(row);
+      if (ingredientIssues.length) { reasons.push(...ingredientIssues); rejected = true; }
       if (duplicateSourceKeys.has(sourceRecordKey)) { reasons.push('sourceRecordKey is duplicated inside this chunk'); rejected = true; }
       if (barcode && duplicateBarcodes.has(barcode)) reasons.push('Barcode is claimed by multiple incoming source rows and will require quarantine review');
       if (regulatoryId && duplicateRegs.has(regulatoryId)) reasons.push('Regulatory ID is claimed by multiple incoming source rows and will require quarantine review');
@@ -120,6 +125,28 @@ export class PrismaProductsImportPreflightRepository implements ProductsImportPr
   }
 }
 
+function ingredientList(row: Pick<CompanyImportRow | CentralImportRow, 'ingredients' | 'ingredientName' | 'strengthValue' | 'strengthUnit'>): ImportIngredientRow[] {
+  if (row.ingredients?.length) return row.ingredients;
+  return row.ingredientName ? [{ name: row.ingredientName, strengthValue: row.strengthValue, strengthUnit: row.strengthUnit }] : [];
+}
+function validateIngredients(row: Pick<CompanyImportRow | CentralImportRow, 'ingredients' | 'ingredientName' | 'strengthValue' | 'strengthUnit'>): string[] {
+  const ingredients = ingredientList(row);
+  const issues: string[] = [];
+  const names = new Set<string>();
+  ingredients.forEach((ingredient, index) => {
+    const name = ingredient.name?.trim();
+    if (!name) issues.push(`Ingredient ${index + 1} name is required`);
+    else {
+      const normalized = normalizeSearchText(name);
+      if (names.has(normalized)) issues.push(`Ingredient ${index + 1} duplicates another active ingredient in the row`);
+      names.add(normalized);
+    }
+    if (ingredient.strengthValue && !validDecimal(ingredient.strengthValue, 6)) issues.push(`Ingredient ${index + 1} strength is invalid`);
+    if (ingredient.strengthUnit && ingredient.strengthUnit.trim().length > 40) issues.push(`Ingredient ${index + 1} strength unit is too long`);
+  });
+  return issues;
+}
+function validDecimal(value: string, scale: number) { return new RegExp(`^\\d+(?:\\.\\d{1,${scale}})?$`).test(value.trim()) && Number(value) >= 0; }
 function barcodeOrNull(value: string | null | undefined): string | null {
   if (!value?.trim()) return null;
   try { return normalizeBarcode(value); } catch { return null; }
