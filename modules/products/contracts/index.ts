@@ -43,6 +43,20 @@ export interface CentralDrugReferenceView {
   ingredients:CentralDrugIngredientView[]; barcodes:CentralDrugBarcodeView[]; createdAt:string; updatedAt:string;
 }
 
+export interface CentralDatasetSummaryView {
+  id:string;
+  datasetKey:string;
+  publishedAt:string|null;
+  ingestedAt:string;
+  status:string;
+}
+
+export interface CentralDrugReferenceDetailView {
+  reference:CentralDrugReferenceView;
+  source:{id:string;sourceKey:string;name:string;provenance:string;licenseNote:string|null;sourceUrl:string|null;active:boolean};
+  dataset:CentralDatasetSummaryView|null;
+}
+
 export interface ProductReader {
   getProductSummary(companyId:string, productId:string):Promise<ProductSummary|null>;
   resolveBarcode(companyId:string, barcode:string):Promise<BarcodeResolution|null>;
