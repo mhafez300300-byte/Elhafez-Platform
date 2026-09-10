@@ -1,1 +1,189 @@
-import{Inject,Injectable}from'@nestjs/common';import{NotFoundError,ConflictError}from'@elhafez/errors';import{EventBus}from'@elhafez/events';import type{AuditRequestedEvent}from'@elhafez/platform-contracts';import{USER_IDENTITY_READER,type UserIdentityReader}from'@elhafez/users/contracts';import{ROLE_STATUS_READER,type RoleStatusReader}from'@elhafez/roles/contracts';import{COMPANY_STATUS_READER,type CompanyStatusReader}from'@elhafez/companies/contracts';import{BRANCH_STATUS_READER,type BranchStatusReader}from'@elhafez/branches/contracts';import{PERMISSION_CHECKER,type PermissionChecker,type PermissionScope}from'../../contracts';import{buildScopeKey}from'../domain/permission-scope';import{PERMISSION_REPOSITORY,type PermissionRepository}from'./permission.repository';@Injectable()export class PermissionsService implements PermissionChecker{constructor(@Inject(PERMISSION_REPOSITORY)private readonly repo:PermissionRepository,@Inject(USER_IDENTITY_READER)private readonly users:UserIdentityReader,@Inject(ROLE_STATUS_READER)private readonly roles:RoleStatusReader,@Inject(COMPANY_STATUS_READER)private readonly companies:CompanyStatusReader,@Inject(BRANCH_STATUS_READER)private readonly branches:BranchStatusReader,private readonly events:EventBus){}list(){return this.repo.listPermissions();}async grantToRole(roleId:string,permissionKey:string,actorId?:string){const role=await this.roles.getRole(roleId);if(!role||role.status!=='ACTIVE')throw new NotFoundError('Active role not found');const permission=await this.repo.findPermissionByKey(permissionKey);if(!permission)throw new NotFoundError('Permission not found');if(await this.repo.roleHasPermission(roleId,permission.id))throw new ConflictError('Role already has permission');await this.repo.grantRolePermission(roleId,permission.id);const e:AuditRequestedEvent={type:'platform.audit.requested',occurredAt:new Date().toISOString(),actorId,companyId:role.companyId??undefined,entityType:'role-permission',entityId:roleId,action:'permission.granted',metadata:{permission:permissionKey}};await this.events.publish(e);return{success:true};}async assignRole(input:{userId:string;roleId:string;scopeType:PermissionScope;companyId?:string|null;branchId?:string|null},actorId?:string){const user=await this.users.getIdentity(input.userId);if(!user||user.status!=='ACTIVE')throw new NotFoundError('Active user not found');const role=await this.roles.getRole(input.roleId);if(!role||role.status!=='ACTIVE')throw new NotFoundError('Active role not found');const companyId=input.companyId??null;const branchId=input.branchId??null;if(role.companyId&&(input.scopeType==='GLOBAL'||companyId!==role.companyId))throw new NotFoundError('Role is not valid for this scope');const scopeKey=buildScopeKey(input.scopeType,companyId,branchId);if(companyId){const c=await this.companies.getCompany(companyId);if(!c||c.status!=='ACTIVE')throw new NotFoundError('Active company not found');}if(branchId){const b=await this.branches.getBranch(branchId);if(!b||b.status!=='ACTIVE'||b.companyId!==companyId)throw new NotFoundError('Active branch not found in company');}const row=await this.repo.assignRole({userId:input.userId,roleId:input.roleId,scopeType:input.scopeType,companyId,branchId,scopeKey});const e:AuditRequestedEvent={type:'platform.audit.requested',occurredAt:new Date().toISOString(),actorId,companyId:companyId??undefined,branchId:branchId??undefined,entityType:'role-assignment',entityId:row.id,action:'role.assigned',after:row};await this.events.publish(e);return row;}async hasPermission(userId:string,permissionKey:string,context:{companyId?:string;branchId?:string}={}):Promise<boolean>{const user=await this.users.getIdentity(userId);if(!user||user.status!=='ACTIVE')return false;if(user.platformAdmin)return true;const permission=await this.repo.findPermissionByKey(permissionKey);if(!permission)return false;const assignments=await this.repo.listAssignmentsForUser(userId);for(const a of assignments){const role=await this.roles.getRole(a.roleId);if(!role||role.status!=='ACTIVE')continue;if(!(await this.repo.roleHasPermission(a.roleId,permission.id)))continue;if(await this.scopeAllows(a.scopeType,a.companyId,a.branchId,context))return true;}return false;}private async scopeAllows(scope:PermissionScope,assignedCompany:string|null,assignedBranch:string|null,context:{companyId?:string;branchId?:string}):Promise<boolean>{if(scope==='GLOBAL')return assignedCompany===null&&assignedBranch===null;if(scope==='COMPANY'){if(!context.companyId||context.companyId!==assignedCompany||assignedBranch!==null)return false;const company=await this.companies.getCompany(context.companyId);if(!company||company.status!=='ACTIVE')return false;if(context.branchId){const branch=await this.branches.getBranch(context.branchId);return!!branch&&branch.status==='ACTIVE'&&branch.companyId===context.companyId;}return true;}if(!context.companyId||!context.branchId||context.companyId!==assignedCompany||context.branchId!==assignedBranch)return false;const[company,branch]=await Promise.all([this.companies.getCompany(context.companyId),this.branches.getBranch(context.branchId)]);return!!company&&company.status==='ACTIVE'&&!!branch&&branch.status==='ACTIVE'&&branch.companyId===context.companyId;}}
+import { Inject, Injectable } from '@nestjs/common';
+import { NotFoundError, ConflictError } from '@elhafez/errors';
+import { EventBus } from '@elhafez/events';
+import type { AuditRequestedEvent } from '@elhafez/platform-contracts';
+import { USER_IDENTITY_READER, type UserIdentityReader } from '@elhafez/users/contracts';
+import { ROLE_STATUS_READER, type RoleStatusReader } from '@elhafez/roles/contracts';
+import { COMPANY_STATUS_READER, type CompanyStatusReader } from '@elhafez/companies/contracts';
+import { BRANCH_STATUS_READER, type BranchStatusReader } from '@elhafez/branches/contracts';
+import { type PermissionChecker, type PermissionScope } from '../../contracts';
+import { buildScopeKey } from '../domain/permission-scope';
+import { PERMISSION_REPOSITORY, type PermissionRepository } from './permission.repository';
+
+@Injectable()
+export class PermissionsService implements PermissionChecker {
+  constructor(
+    @Inject(PERMISSION_REPOSITORY) private readonly repo: PermissionRepository,
+    @Inject(USER_IDENTITY_READER) private readonly users: UserIdentityReader,
+    @Inject(ROLE_STATUS_READER) private readonly roles: RoleStatusReader,
+    @Inject(COMPANY_STATUS_READER) private readonly companies: CompanyStatusReader,
+    @Inject(BRANCH_STATUS_READER) private readonly branches: BranchStatusReader,
+    private readonly events: EventBus,
+  ) {}
+
+  list() {
+    return this.repo.listPermissions();
+  }
+
+  async grantToRole(roleId: string, permissionKey: string, actorId?: string) {
+    const role = await this.roles.getRole(roleId);
+    if (!role || role.status !== 'ACTIVE') throw new NotFoundError('Active role not found');
+
+    const permission = await this.repo.findPermissionByKey(permissionKey);
+    if (!permission) throw new NotFoundError('Permission not found');
+    if (await this.repo.roleHasPermission(roleId, permission.id)) {
+      throw new ConflictError('Role already has permission');
+    }
+
+    await this.repo.grantRolePermission(roleId, permission.id);
+    const event: AuditRequestedEvent = {
+      type: 'platform.audit.requested',
+      occurredAt: new Date().toISOString(),
+      actorId,
+      companyId: role.companyId ?? undefined,
+      entityType: 'role-permission',
+      entityId: roleId,
+      action: 'permission.granted',
+      metadata: { permission: permissionKey },
+    };
+    await this.events.publish(event);
+    return { success: true };
+  }
+
+  async assignRole(
+    input: {
+      userId: string;
+      roleId: string;
+      scopeType: PermissionScope;
+      companyId?: string | null;
+      branchId?: string | null;
+    },
+    actorId?: string,
+  ) {
+    const user = await this.users.getIdentity(input.userId);
+    if (!user || user.status !== 'ACTIVE') throw new NotFoundError('Active user not found');
+
+    const role = await this.roles.getRole(input.roleId);
+    if (!role || role.status !== 'ACTIVE') throw new NotFoundError('Active role not found');
+
+    const companyId = input.companyId ?? null;
+    const branchId = input.branchId ?? null;
+    if (role.companyId && (input.scopeType === 'GLOBAL' || companyId !== role.companyId)) {
+      throw new NotFoundError('Role is not valid for this scope');
+    }
+
+    const scopeKey = buildScopeKey(input.scopeType, companyId, branchId);
+
+    if (companyId) {
+      const company = await this.companies.getCompany(companyId);
+      if (!company || company.status !== 'ACTIVE') throw new NotFoundError('Active company not found');
+    }
+
+    if (branchId) {
+      const branch = await this.branches.getBranch(branchId);
+      if (!branch || branch.status !== 'ACTIVE' || branch.companyId !== companyId) {
+        throw new NotFoundError('Active branch not found in company');
+      }
+    }
+
+    const row = await this.repo.assignRole({
+      userId: input.userId,
+      roleId: input.roleId,
+      scopeType: input.scopeType,
+      companyId,
+      branchId,
+      scopeKey,
+    });
+
+    const event: AuditRequestedEvent = {
+      type: 'platform.audit.requested',
+      occurredAt: new Date().toISOString(),
+      actorId,
+      companyId: companyId ?? undefined,
+      branchId: branchId ?? undefined,
+      entityType: 'role-assignment',
+      entityId: row.id,
+      action: 'role.assigned',
+      after: row,
+    };
+    await this.events.publish(event);
+    return row;
+  }
+
+  async hasPermission(
+    userId: string,
+    permissionKey: string,
+    context: { companyId?: string; branchId?: string } = {},
+  ): Promise<boolean> {
+    const user = await this.users.getIdentity(userId);
+    if (!user || user.status !== 'ACTIVE') return false;
+    if (user.platformAdmin) return true;
+
+    const permission = await this.repo.findPermissionByKey(permissionKey);
+    if (!permission) return false;
+
+    const assignments = await this.repo.listAssignmentsForUser(userId);
+    for (const assignment of assignments) {
+      const role = await this.roles.getRole(assignment.roleId);
+      if (!role || role.status !== 'ACTIVE') continue;
+      if (!(await this.repo.roleHasPermission(assignment.roleId, permission.id))) continue;
+      if (
+        await this.scopeAllows(
+          assignment.scopeType,
+          assignment.companyId,
+          assignment.branchId,
+          context,
+        )
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private async scopeAllows(
+    scope: PermissionScope,
+    assignedCompany: string | null,
+    assignedBranch: string | null,
+    context: { companyId?: string; branchId?: string },
+  ): Promise<boolean> {
+    if (scope === 'GLOBAL') return assignedCompany === null && assignedBranch === null;
+
+    if (scope === 'COMPANY') {
+      if (!context.companyId || context.companyId !== assignedCompany || assignedBranch !== null) {
+        return false;
+      }
+      const company = await this.companies.getCompany(context.companyId);
+      if (!company || company.status !== 'ACTIVE') return false;
+      if (context.branchId) {
+        const branch = await this.branches.getBranch(context.branchId);
+        return Boolean(
+          branch && branch.status === 'ACTIVE' && branch.companyId === context.companyId,
+        );
+      }
+      return true;
+    }
+
+    if (
+      !context.companyId ||
+      !context.branchId ||
+      context.companyId !== assignedCompany ||
+      context.branchId !== assignedBranch
+    ) {
+      return false;
+    }
+
+    const [company, branch] = await Promise.all([
+      this.companies.getCompany(context.companyId),
+      this.branches.getBranch(context.branchId),
+    ]);
+
+    return Boolean(
+      company &&
+        company.status === 'ACTIVE' &&
+        branch &&
+        branch.status === 'ACTIVE' &&
+        branch.companyId === context.companyId,
+    );
+  }
+}
