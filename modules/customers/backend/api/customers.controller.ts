@@ -106,7 +106,12 @@ export class CustomersController {
       pageSize: pageSize ?? 25,
     });
     this.assertDateRange(parsed.createdFrom, parsed.createdTo);
-    return this.service.list({ companyId: scope, ...parsed });
+    return this.service.list({
+      companyId: scope,
+      ...parsed,
+      page: parsed.page ?? 1,
+      pageSize: parsed.pageSize ?? 25,
+    });
   }
 
   @Get('categories')
