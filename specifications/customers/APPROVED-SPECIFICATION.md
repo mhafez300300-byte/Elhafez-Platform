@@ -222,8 +222,8 @@ Customers v1 requires explicit permission contracts for at least:
 - `customers.view`
 - `customers.create`
 - `customers.update`
-- `customers.change_status`
-- `customers.view_sensitive`
+- `customers.change-status`
+- `customers.view-sensitive`
 - `customers.export`
 
 If import is built in the approved v1 scope, also:
